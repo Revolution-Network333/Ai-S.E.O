@@ -1029,21 +1029,26 @@ async function loadUsage() {
 }
 
 async function upgradeToPro() {
+  const user = currentUser || JSON.parse(localStorage.getItem('aiseo_user') || 'null');
+  if (!user) { window.location.href = `${BACKEND}/auth/google`; return; }
   try {
     const r = await fetch(`${BACKEND}/stripe/create-checkout`, {
       method: 'POST', credentials: 'include',
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json', 'x-user-id': user.id }
     });
     const d = await r.json();
     if (d.url) window.location.href = d.url;
+    else alert('Erreur: ' + (d.error || 'réponse invalide'));
   } catch(e) { alert('Erreur — réessaie dans quelques secondes.'); }
 }
 
 async function openPortal() {
+  const user = currentUser || JSON.parse(localStorage.getItem('aiseo_user') || 'null');
+  if (!user) return;
   try {
     const r = await fetch(`${BACKEND}/stripe/portal`, {
       method: 'POST', credentials: 'include',
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json', 'x-user-id': user.id }
     });
     const d = await r.json();
     if (d.url) window.location.href = d.url;
