@@ -1228,8 +1228,11 @@ function closeModal() {
 }
 
 // Close on overlay click
-document.getElementById('sub-modal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
+document.addEventListener('DOMContentLoaded', function() {
+  const subModal = document.getElementById('sub-modal');
+  if (subModal) subModal.addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
 });
 
 function doCopy(id, btn) {
