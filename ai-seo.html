@@ -1001,7 +1001,7 @@ function renderAuthBar() {
         ? `<button onclick="openModal()" style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px;background:none;border:1px solid var(--text3);color:var(--text2);padding:3px 10px;cursor:pointer;">ABONNEMENT</button>`
         : `<button onclick="openModal()" style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;background:var(--cyan);color:var(--bg);border:none;padding:4px 12px;cursor:pointer;font-weight:700;">↑ PRO 2.25€/MOIS</button>`
       }
-      <a href="#" onclick="localStorage.removeItem('aiseo_user');window.location.href=`${BACKEND}/auth/logout`" style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:1px;text-decoration:none;opacity:0.7;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">DÉCO</a>`;
+      <a href="#" onclick="localStorage.removeItem('aiseo_user');window.location.href=BACKEND+'/auth/logout'"  style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:1px;text-decoration:none;opacity:0.7;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">DÉCO</a>`;
   }
 }
 
