@@ -1008,7 +1008,10 @@ function renderAuthBar() {
 async function loadUsage() {
   if (!currentUser) return;
   try {
-    const r = await fetch(`${BACKEND}/api/usage`, { credentials: 'include' });
+    const r = await fetch(`${BACKEND}/api/usage`, {
+      credentials: 'include',
+      headers: { 'x-user-id': currentUser.id }
+    });
     const d = await r.json();
     const usageBar = document.getElementById('usage-bar');
     const usageText = document.getElementById('usage-text');
@@ -1087,11 +1090,10 @@ function isURL(str) { return /^https?:\/\//i.test(str.trim()); }
 
 // ── Scrape via backend pour éviter CORS ──────────────────────
 async function scrapeViaBackend(url) {
-  // Le backend appelle lui-même revolution-network, pas de CORS
   const r = await fetch(`${BACKEND}/api/generate`, {
     method: 'POST',
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'x-user-id': currentUser?.id || '' },
     body: JSON.stringify({ input: url, types: ['product'], language: 'français', scrapeOnly: true })
   });
   const d = await r.json();
@@ -1154,7 +1156,7 @@ async function generate() {
     const r = await fetch(`${BACKEND}/api/generate`, {
       method: 'POST',
       credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-user-id': currentUser.id },
       body: JSON.stringify({ input: desc, types, language: lang })
     });
 
