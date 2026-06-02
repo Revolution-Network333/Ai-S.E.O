@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI S.E.O — Content Intelligence Network</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cyan: #00ffcc;
+  --cyan2: #00e5b0;
+  --cyan-dim: rgba(0,255,204,0.12);
+  --cyan-glow: rgba(0,255,204,0.4);
+  --purple: #7c3aed;
+  --purple-dim: rgba(124,58,237,0.15);
+  --bg: #060a0d;
+  --bg2: #0b1118;
+  --bg3: #101820;
+  --bg4: #141f2a;
+  --border: rgba(0,255,204,0.12);
+  --border2: rgba(0,255,204,0.22);
+  --text: #c8e8e0;
+  --text2: #5a8a7a;
+  --text3: #2a4a40;
+  --red: #ff4466;
+  --amber: #ffaa00;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+
+body {
+  font-family:'Rajdhani',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+  position:relative;
+}
+
+/* Scanlines */
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.15) 2px,rgba(0,0,0,0.15) 4px);
+  pointer-events:none;
+  z-index:9999;
+}
+
+/* Grid background */
+body::after {
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(0,255,204,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,255,204,0.03) 1px,transparent 1px);
+  background-size:40px 40px;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* === HEADER === */
+.header {
+  position:relative;
+  z-index:10;
+  text-align:center;
+  padding:2.5rem 1rem 0;
+}
+
+/* Glitch Logo */
+.glitch-wrap {
+  position:relative;
+  display:inline-block;
+  margin-bottom:0.3rem;
+}
+
+.logo {
+  font-family:'Orbitron',monospace;
+  font-size:clamp(32px,6vw,60px);
+  font-weight:900;
+  letter-spacing:6px;
+  color:var(--cyan);
+  text-shadow:0 0 20px var(--cyan-glow), 0 0 60px rgba(0,255,204,0.2);
+  position:relative;
+  display:inline-block;
+  animation:glitch-main 4s infinite;
+}
+
+.logo::before,
+.logo::after {
+  content:attr(data-text);
+  position:absolute;
+  top:0; left:0;
+  width:100%; height:100%;
+  font-family:'Orbitron',monospace;
+  font-size:inherit;
+  font-weight:900;
+  letter-spacing:6px;
+}
+
+.logo::before {
+  color:#ff0066;
+  text-shadow:2px 0 #ff0066;
+  animation:glitch-before 4s infinite;
+  clip-path:polygon(0 20%,100% 20%,100% 40%,0 40%);
+}
+
+.logo::after {
+  color:#00ccff;
+  text-shadow:-2px 0 #00ccff;
+  animation:glitch-after 4s infinite;
+  clip-path:polygon(0 60%,100% 60%,100% 75%,0 75%);
+}
+
+@keyframes glitch-main {
+  0%,90%,100%{transform:translate(0);}
+  91%{transform:translate(-2px,1px);}
+  93%{transform:translate(2px,-1px);}
+  95%{transform:translate(-1px,2px);}
+  97%{transform:translate(1px,-1px);}
+}
+@keyframes glitch-before {
+  0%,90%,100%{transform:translate(0);opacity:0;}
+  91%{transform:translate(-4px,0);opacity:0.8;}
+  93%{transform:translate(4px,0);opacity:0.6;}
+  95%{transform:translate(-2px,0);opacity:0.9;}
+  97%{transform:translate(2px,0);opacity:0;}
+}
+@keyframes glitch-after {
+  0%,88%,100%{transform:translate(0);opacity:0;}
+  89%{transform:translate(3px,0);opacity:0.7;}
+  91%{transform:translate(-3px,0);opacity:0.5;}
+  93%{transform:translate(1px,0);opacity:0.8;}
+  95%{transform:translate(0);opacity:0;}
+}
+
+.tagline {
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px;
+  color:var(--text2);
+  letter-spacing:3px;
+  text-transform:uppercase;
+  margin-top:6px;
+}
+
+.status-bar {
+  display:inline-flex;
+  align-items:center;
+  gap:20px;
+  margin-top:14px;
+  padding:6px 18px;
+  border:1px solid var(--border);
+  background:var(--bg2);
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;
+  color:var(--text2);
+  letter-spacing:2px;
+}
+.status-dot {
+  width:6px;height:6px;border-radius:50%;
+  background:var(--cyan);
+  box-shadow:0 0 8px var(--cyan);
+  animation:blink 1.5s infinite;
+}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+/* === MAP === */
+.map-container {
+  position:relative;
+  z-index:5;
+  width:100%;
+  height:200px;
+  margin:1.5rem 0 0;
+  overflow:hidden;
+}
+
+#network-map {
+  width:100%;
+  height:100%;
+}
+
+/* === MAIN LAYOUT === */
+.main {
+  position:relative;
+  z-index:10;
+  max-width:900px;
+  margin:0 auto;
+  padding:1.5rem 1.2rem 4rem;
+}
+
+/* Panels */
+.panel {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  position:relative;
+  margin-bottom:1rem;
+  overflow:hidden;
+}
+
+.panel::before {
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:1px;
+  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+  opacity:0.6;
+}
+
+.panel-header {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 16px;
+  border-bottom:1px solid var(--border);
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;
+  color:var(--cyan);
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+
+.panel-header::before {
+  content:'▶';
+  font-size:8px;
+  color:var(--cyan);
+}
+
+.panel-body {
+  padding:16px;
+}
+
+/* Textarea */
+textarea {
+  width:100%;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  color:var(--text);
+  font-family:'Rajdhani',sans-serif;
+  font-size:15px;
+  font-weight:400;
+  line-height:1.6;
+  padding:14px;
+  resize:vertical;
+  min-height:110px;
+  outline:none;
+  transition:border-color .2s,box-shadow .2s;
+  letter-spacing:0.5px;
+}
+
+textarea::placeholder{color:var(--text3);}
+
+textarea:focus {
+  border-color:var(--border2);
+  box-shadow:0 0 0 1px var(--border2) inset, 0 0 20px rgba(0,255,204,0.05);
+}
+
+/* Lang select */
+.controls-row {
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:10px;
+  align-items:center;
+}
+
+.ctrl-label {
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;
+  color:var(--text2);
+  letter-spacing:2px;
+  white-space:nowrap;
+}
+
+select {
+  background:var(--bg3);
+  border:1px solid var(--border);
+  color:var(--cyan);
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px;
+  padding:7px 12px;
+  outline:none;
+  cursor:pointer;
+  letter-spacing:1px;
+  appearance:none;
+  -webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2300ffcc'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 10px center;
+  padding-right:30px;
+}
+
+/* Content type toggles */
+.types {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:8px;
+}
+
+.tbtn {
+  display:flex;
+  align-items:center;
+  gap:9px;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  color:var(--text2);
+  font-family:'Rajdhani',sans-serif;
+  font-size:13px;
+  font-weight:600;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  padding:12px 14px;
+  cursor:pointer;
+  transition:all .2s;
+  position:relative;
+}
+
+.tbtn svg {width:16px;height:16px;flex-shrink:0;}
+
+.tbtn:hover {
+  border-color:var(--border2);
+  color:var(--text);
+}
+
+.tbtn.on {
+  border-color:rgba(0,255,204,0.35);
+  color:var(--cyan);
+  background:rgba(0,255,204,0.06);
+  box-shadow:inset 0 0 20px rgba(0,255,204,0.04);
+}
+
+.tbtn.on::after {
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:1px;
+  background:var(--cyan);
+  opacity:0.5;
+}
+
+/* Generate button */
+.genbtn {
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  background:transparent;
+  border:1px solid var(--cyan2);
+  color:var(--cyan);
+  font-family:'Orbitron',monospace;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:4px;
+  text-transform:uppercase;
+  padding:16px;
+  cursor:pointer;
+  margin-top:12px;
+  transition:all .2s;
+  position:relative;
+  overflow:hidden;
+}
+
+.genbtn::before {
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(90deg,transparent,rgba(0,255,204,0.08),transparent);
+  transform:translateX(-100%);
+  transition:transform .4s;
+}
+
+.genbtn:hover::before { transform:translateX(100%); }
+
+.genbtn:hover {
+  background:rgba(0,255,204,0.08);
+  box-shadow:0 0 30px rgba(0,255,204,0.2);
+  text-shadow:0 0 10px var(--cyan);
+}
+
+.genbtn:disabled {
+  opacity:0.5;
+  cursor:not-allowed;
+}
+
+/* Status */
+.status-line {
+  display:none;
+  align-items:center;
+  gap:10px;
+  padding:10px 16px;
+  border:1px solid var(--border);
+  background:var(--bg2);
+  margin-bottom:1rem;
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px;
+  color:var(--cyan);
+  letter-spacing:1px;
+}
+
+.status-line .dot {
+  width:8px;height:8px;border-radius:50%;
+  background:var(--cyan);
+  box-shadow:0 0 10px var(--cyan);
+  animation:blink 0.8s infinite;
+  flex-shrink:0;
+}
+
+/* Results */
+.rblock {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  margin-bottom:1rem;
+  position:relative;
+  overflow:hidden;
+  animation:slideIn .3s ease;
+}
+
+@keyframes slideIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+.rblock::before {
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--purple),var(--cyan),transparent);
+}
+
+.rhead {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px 14px;
+  border-bottom:1px solid var(--border);
+}
+
+.rlabel {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;
+  color:var(--cyan);
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+
+.rlabel svg{width:14px;height:14px;}
+
+.copybtn {
+  display:flex;
+  align-items:center;
+  gap:6px;
+  background:transparent;
+  border:1px solid var(--border);
+  color:var(--text2);
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;
+  letter-spacing:1px;
+  padding:5px 10px;
+  cursor:pointer;
+  transition:all .15s;
+}
+.copybtn:hover{border-color:var(--border2);color:var(--cyan);}
+.copybtn svg{width:12px;height:12px;}
+
+.rcontent {
+  padding:16px;
+  font-family:'Rajdhani',sans-serif;
+  font-size:14px;
+  font-weight:400;
+  line-height:1.75;
+  color:var(--text);
+  white-space:pre-wrap;
+  word-break:break-word;
+  letter-spacing:0.3px;
+  min-height:60px;
+}
+
+/* Loading */
+.loading-dots{display:flex;gap:6px;align-items:center;padding:8px 0;}
+.loading-dots span{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--cyan);
+  opacity:0.3;
+  animation:ldot 1.2s infinite;
+}
+.loading-dots span:nth-child(2){animation-delay:.2s;}
+.loading-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes ldot{0%,80%,100%{opacity:0.3;transform:scale(0.8);}40%{opacity:1;transform:scale(1);}}
+
+/* Btn dots */
+.btn-dots{display:flex;gap:5px;align-items:center;}
+.btn-dots span{
+  width:5px;height:5px;border-radius:50%;
+  background:var(--cyan);
+  animation:ldot 1s infinite;
+}
+.btn-dots span:nth-child(2){animation-delay:.15s;}
+.btn-dots span:nth-child(3){animation-delay:.3s;}
+
+.err{
+  display:flex;align-items:center;gap:8px;
+  color:var(--red);font-size:12px;
+  font-family:'Share Tech Mono',monospace;
+}
+.err svg{width:16px;height:16px;flex-shrink:0;}
+
+/* Corner decorations */
+.corner-tl,.corner-tr,.corner-bl,.corner-br{
+  position:absolute;width:12px;height:12px;
+  border-color:var(--cyan);border-style:solid;opacity:0.5;
+}
+.corner-tl{top:0;left:0;border-width:1px 0 0 1px;}
+.corner-tr{top:0;right:0;border-width:1px 1px 0 0;}
+.corner-bl{bottom:0;left:0;border-width:0 0 1px 1px;}
+.corner-br{bottom:0;right:0;border-width:0 1px 1px 0;}
+
+/* Footer */
+footer {
+  position:relative;z-index:10;
+  text-align:center;
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;
+  color:var(--text3);
+  letter-spacing:3px;
+  padding-bottom:1.5rem;
+}
+
+.powered-by {
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;
+  color:var(--text3);
+  letter-spacing:2px;
+  margin-top:8px;
+  opacity:0.6;
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="glitch-wrap">
+    <div class="logo" data-text="AI S.E.O">AI S.E.O</div>
+  </div>
+  <div class="tagline">// Content Intelligence Network · Node Active</div>
+  <div class="status-bar">
+    <div class="status-dot"></div>
+    <span>API CONNECTED</span>
+  </div>
+  <!-- Auth bar -->
+  <div id="auth-bar" style="margin-top:12px;display:flex;align-items:center;gap:12px;justify-content:center;flex-wrap:wrap;">
+    <div id="auth-loading" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text2);letter-spacing:2px;">[ CHECKING AUTH... ]</div>
+  </div>
+  <!-- Usage bar (shown when logged in) -->
+  <div id="usage-bar" style="display:none;margin-top:8px;text-align:center;">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text2);letter-spacing:2px;" id="usage-text"></div>
+    <div style="width:200px;height:3px;background:var(--bg3);border-radius:2px;margin:6px auto 0;overflow:hidden;">
+      <div id="usage-fill" style="height:100%;background:var(--cyan);transition:width 0.5s ease;width:0%;"></div>
+    </div>
+  </div>
+  <div class="powered-by">Powered by Révolution Network</div>
+</div>
+
+<!-- NETWORK MAP -->
+<div class="map-container">
+  <canvas id="network-map"></canvas>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- Input panel -->
+  <div class="panel">
+    <div class="corner-tl"></div><div class="corner-tr"></div><div class="corner-bl"></div><div class="corner-br"></div>
+    <div class="panel-header">INPUT · Produit ou URL</div>
+    <div class="panel-body">
+      <textarea id="desc" placeholder="Décris ton produit... ex: Chaussures running légères, semelle carbone, 129€&#10;&#10;Ou colle une URL pour que l'IA analyse la page automatiquement."></textarea>
+      <div class="controls-row">
+        <span class="ctrl-label">// LANG :</span>
+        <select id="lang">
+          <option value="français">🇫🇷 FRANÇAIS</option>
+          <option value="anglais">🇬🇧 ENGLISH</option>
+          <option value="espagnol">🇪🇸 ESPAÑOL</option>
+          <option value="allemand">🇩🇪 DEUTSCH</option>
+          <option value="italien">🇮🇹 ITALIANO</option>
+          <option value="portugais">🇵🇹 PORTUGUÊS</option>
+          <option value="néerlandais">🇳🇱 NEDERLANDS</option>
+          <option value="japonais">🇯🇵 日本語</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modules panel -->
+  <div class="panel">
+    <div class="corner-tl"></div><div class="corner-tr"></div><div class="corner-bl"></div><div class="corner-br"></div>
+    <div class="panel-header">MODULES · Sélectionner les outputs</div>
+    <div class="panel-body">
+      <div class="types">
+        <button class="tbtn on" data-t="product" onclick="toggle(this)">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+          Fiche Produit
+        </button>
+        <button class="tbtn on" data-t="social" onclick="toggle(this)">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>
+          Posts Sociaux
+        </button>
+        <button class="tbtn on" data-t="seo" onclick="toggle(this)">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          Article SEO
+        </button>
+        <button class="tbtn on" data-t="email" onclick="toggle(this)">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          Emailing
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <button class="genbtn" id="genbtn" onclick="generate()">
+    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+    EXECUTE GENERATION
+  </button>
+
+  <!-- Status -->
+  <div class="status-line" id="status">
+    <div class="dot"></div>
+    <span id="stxt">Initialisation...</span>
+  </div>
+
+  <!-- Results -->
+  <div id="results"></div>
+
+</div>
+
+<footer>AI S.E.O · NODE v2.0 · ALL SYSTEMS OPERATIONAL</footer>
+
+<script>
+// ── Network Map Animation ──────────────────────────────────────
+const canvas = document.getElementById('network-map');
+const ctx = canvas.getContext('2d');
+
+function resize() {
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+const nodes = [];
+const NUM_NODES = 32;
+
+// Spawn nodes across canvas
+for (let i = 0; i < NUM_NODES; i++) {
+  nodes.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    vx: (Math.random() - 0.5) * 0.3,
+    vy: (Math.random() - 0.5) * 0.3,
+    r: Math.random() * 2 + 1,
+    pulse: Math.random() * Math.PI * 2,
+    active: Math.random() > 0.5
+  });
+}
+
+// Data packets moving along connections
+const packets = [];
+let lastPacket = 0;
+
+function drawMap(ts) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Update nodes
+  nodes.forEach(n => {
+    n.x += n.vx;
+    n.y += n.vy;
+    n.pulse += 0.05;
+    if (n.x < 0 || n.x > canvas.width) n.vx *= -1;
+    if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
+  });
+
+  // Draw connections
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) {
+      const dx = nodes[i].x - nodes[j].x;
+      const dy = nodes[i].y - nodes[j].y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < 120) {
+        const alpha = (1 - dist / 120) * 0.3;
+        ctx.beginPath();
+        ctx.moveTo(nodes[i].x, nodes[i].y);
+        ctx.lineTo(nodes[j].x, nodes[j].y);
+        ctx.strokeStyle = `rgba(0,255,204,${alpha})`;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+    }
+  }
+
+  // Spawn packets
+  if (ts - lastPacket > 800) {
+    const i = Math.floor(Math.random() * nodes.length);
+    let j = Math.floor(Math.random() * nodes.length);
+    if (i !== j) {
+      packets.push({ from: i, to: j, t: 0, speed: 0.015 + Math.random() * 0.01 });
+    }
+    lastPacket = ts;
+  }
+
+  // Draw packets
+  for (let k = packets.length - 1; k >= 0; k--) {
+    const p = packets[k];
+    p.t += p.speed;
+    if (p.t >= 1) { packets.splice(k, 1); continue; }
+    const px = nodes[p.from].x + (nodes[p.to].x - nodes[p.from].x) * p.t;
+    const py = nodes[p.from].y + (nodes[p.to].y - nodes[p.from].y) * p.t;
+    ctx.beginPath();
+    ctx.arc(px, py, 2.5, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,255,204,0.9)';
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = '#00ffcc';
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+
+  // Draw nodes
+  nodes.forEach(n => {
+    const pulse = 0.5 + 0.5 * Math.sin(n.pulse);
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+    ctx.fillStyle = n.active
+      ? `rgba(0,255,204,${0.6 + pulse * 0.4})`
+      : `rgba(0,255,204,${0.15 + pulse * 0.1})`;
+    if (n.active) {
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = '#00ffcc';
+    }
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Outer ring for active nodes
+    if (n.active && pulse > 0.8) {
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r * 3 * pulse, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(0,255,204,${(1-pulse) * 0.3})`;
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+    }
+  });
+
+  requestAnimationFrame(drawMap);
+}
+requestAnimationFrame(drawMap);
+
+// ── App Logic ──────────────────────────────────────────────────
+const BACKEND = 'http://localhost:4002'; // ← change en prod par ton URL backend
+const active = new Set(['product','social','seo','email']);
+
+// ── Auth & Usage ──────────────────────────────────────────────
+let currentUser = null;
+
+async function checkAuth() {
+  try {
+    const r = await fetch(`${BACKEND}/auth/me`, { credentials: 'include' });
+    const d = await r.json();
+    currentUser = d.authenticated ? d.user : null;
+  } catch(e) {
+    currentUser = null;
+  }
+  renderAuthBar();
+  if (currentUser) loadUsage();
+}
+
+function renderAuthBar() {
+  const bar = document.getElementById('auth-bar');
+  if (!currentUser) {
+    bar.innerHTML = `
+      <a href="${BACKEND}/auth/google" style="
+        display:inline-flex;align-items:center;gap:8px;
+        font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;
+        color:var(--bg);background:var(--cyan);
+        border:none;padding:8px 18px;cursor:pointer;text-decoration:none;
+        clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
+        transition:opacity 0.2s;font-weight:700;
+      " onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        CONNEXION GOOGLE
+      </a>`;
+  } else {
+    const isPro = currentUser.plan === 'pro' && currentUser.subscription_status === 'active';
+    bar.innerHTML = `
+      <img src="${currentUser.avatar}" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--cyan);opacity:0.9;" onerror="this.style.display='none'" />
+      <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text2);letter-spacing:1px;">${currentUser.name}</span>
+      <span style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;padding:3px 8px;border:1px solid ${isPro ? 'var(--cyan)' : 'var(--text3)'};color:${isPro ? 'var(--cyan)' : 'var(--text2)'};">${isPro ? '★ PRO' : 'FREE'}</span>
+      ${isPro
+        ? `<button onclick="openPortal()" style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px;background:none;border:1px solid var(--text3);color:var(--text2);padding:3px 10px;cursor:pointer;">GÉRER</button>`
+        : `<button onclick="upgradeToPro()" style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;background:var(--cyan);color:var(--bg);border:none;padding:4px 12px;cursor:pointer;font-weight:700;">↑ PRO 2.25$/MOIS</button>`
+      }
+      <a href="${BACKEND}/auth/logout" style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:1px;text-decoration:none;opacity:0.7;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">DÉCO</a>`;
+  }
+}
+
+async function loadUsage() {
+  if (!currentUser) return;
+  try {
+    const r = await fetch(`${BACKEND}/api/usage`, { credentials: 'include' });
+    const d = await r.json();
+    const usageBar = document.getElementById('usage-bar');
+    const usageText = document.getElementById('usage-text');
+    const usageFill = document.getElementById('usage-fill');
+    usageBar.style.display = 'block';
+    if (d.plan === 'pro') {
+      usageText.textContent = '[ PRO · GÉNÉRATIONS ILLIMITÉES ]';
+      usageFill.style.width = '100%';
+      usageFill.style.background = 'var(--cyan)';
+    } else {
+      const pct = Math.min(100, (d.usage / d.limit) * 100);
+      usageText.textContent = `[ FREE · ${d.usage}/${d.limit} GÉNÉRATIONS CETTE SEMAINE ]`;
+      usageFill.style.width = pct + '%';
+      if (pct >= 80) usageFill.style.background = 'var(--red)';
+      else if (pct >= 50) usageFill.style.background = 'var(--amber)';
+    }
+  } catch(e) {}
+}
+
+async function upgradeToPro() {
+  try {
+    const r = await fetch(`${BACKEND}/stripe/create-checkout`, {
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const d = await r.json();
+    if (d.url) window.location.href = d.url;
+  } catch(e) { alert('Erreur — réessaie dans quelques secondes.'); }
+}
+
+async function openPortal() {
+  try {
+    const r = await fetch(`${BACKEND}/stripe/portal`, {
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const d = await r.json();
+    if (d.url) window.location.href = d.url;
+  } catch(e) { alert('Erreur portail.'); }
+}
+
+// Check auth au chargement
+checkAuth();
+
+// ── Types & helpers ───────────────────────────────────────────
+const META = {
+  product:{ label:'FICHE PRODUIT', icon:'product' },
+  social: { label:'POSTS SOCIAUX', icon:'social' },
+  seo:    { label:'ARTICLE SEO', icon:'seo' },
+  email:  { label:'EMAILING', icon:'email' }
+};
+
+const ICONS = {
+  product:`<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>`,
+  social: `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>`,
+  seo:    `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>`,
+  email:  `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>`
+};
+
+function toggle(btn) {
+  const t = btn.dataset.t;
+  if (active.has(t)) {
+    if (active.size === 1) return;
+    active.delete(t); btn.classList.remove('on');
+  } else {
+    active.add(t); btn.classList.add('on');
+  }
+}
+
+function isURL(str) { return /^https?:\/\//i.test(str.trim()); }
+
+// ── Scrape via backend pour éviter CORS ──────────────────────
+async function scrapeViaBackend(url) {
+  // Le backend appelle lui-même revolution-network, pas de CORS
+  const r = await fetch(`${BACKEND}/api/generate`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ input: url, types: ['product'], language: 'français', scrapeOnly: true })
+  });
+  const d = await r.json();
+  return d.scraped || url;
+}
+
+async function generate() {
+  const desc = document.getElementById('desc').value.trim();
+  if (!desc) {
+    const ta = document.getElementById('desc');
+    ta.style.borderColor='#ff4466';
+    ta.style.boxShadow='0 0 15px rgba(255,68,102,0.2)';
+    ta.focus();
+    setTimeout(()=>{ta.style.borderColor='';ta.style.boxShadow='';},1500);
+    return;
+  }
+
+  // Vérifier auth
+  if (!currentUser) {
+    window.location.href = `${BACKEND}/auth/google`;
+    return;
+  }
+
+  const lang = document.getElementById('lang').value;
+  const btn = document.getElementById('genbtn');
+  const grid = document.getElementById('results');
+  const sb = document.getElementById('status');
+  const stxt = document.getElementById('stxt');
+
+  btn.disabled = true;
+  btn.innerHTML = '<div class="btn-dots"><span></span><span></span><span></span></div>';
+  sb.style.display = 'flex';
+  grid.innerHTML = '';
+
+  const types = [...active];
+
+  // Créer les blocs résultats
+  for (const t of types) {
+    const m = META[t];
+    const blk = document.createElement('div');
+    blk.className = 'rblock';
+    blk.innerHTML = `
+      <div class="corner-tl"></div><div class="corner-tr"></div><div class="corner-bl"></div><div class="corner-br"></div>
+      <div class="rhead">
+        <div class="rlabel">${ICONS[t]}${m.label}</div>
+        <button class="copybtn" onclick="doCopy('c-${t}',this)">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          COPY
+        </button>
+      </div>
+      <div class="rcontent" id="c-${t}">
+        <div class="loading-dots"><span></span><span></span><span></span></div>
+      </div>`;
+    grid.appendChild(blk);
+  }
+
+  stxt.textContent = '[ ENVOI AU BACKEND... ]';
+
+  try {
+    const r = await fetch(`${BACKEND}/api/generate`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ input: desc, types, language: lang })
+    });
+
+    if (r.status === 401) {
+      // Session expirée
+      window.location.href = `${BACKEND}/auth/google`;
+      return;
+    }
+
+    if (r.status === 429) {
+      const d = await r.json();
+      sb.style.display = 'none';
+      btn.disabled = false;
+      btn.innerHTML = `<svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>EXECUTE GENERATION`;
+      grid.innerHTML = `
+        <div style="grid-column:1/-1;padding:32px;text-align:center;border:1px solid var(--red);background:rgba(255,68,102,0.05);">
+          <div style="font-family:'Orbitron',sans-serif;font-size:14px;color:var(--red);letter-spacing:3px;margin-bottom:12px;">⚠ LIMITE FREE ATTEINTE</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text2);margin-bottom:20px;">${d.message}</div>
+          <button onclick="upgradeToPro()" style="font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;background:var(--cyan);color:var(--bg);border:none;padding:12px 28px;cursor:pointer;font-weight:700;">↑ PASSER AU PRO · 2.25$/MOIS</button>
+        </div>`;
+      return;
+    }
+
+    const data = await r.json();
+    stxt.textContent = '[ GÉNÉRATION COMPLÈTE ]';
+
+    for (const t of types) {
+      const el = document.getElementById('c-'+t);
+      if (data.results[t]) {
+        el.textContent = data.results[t];
+      } else if (data.errors[t]) {
+        el.innerHTML = `<div class="err"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>ERR: ${data.errors[t]}</div>`;
+      }
+    }
+
+    // Mettre à jour l'affichage usage
+    if (data.usage) {
+      await loadUsage();
+    }
+
+  } catch(e) {
+    stxt.textContent = '[ ERREUR RÉSEAU ]';
+    grid.innerHTML = `<div style="grid-column:1/-1;padding:24px;text-align:center;color:var(--red);font-family:'Share Tech Mono',monospace;font-size:12px;">Impossible de contacter le backend. Vérifie que le serveur tourne sur ${BACKEND}</div>`;
+  }
+
+  sb.style.display = 'none';
+  btn.disabled = false;
+  btn.innerHTML = `<svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>EXECUTE AGAIN`;
+
+  // Vérifier si abonnement vient d'être souscrit
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('subscribed') === '1') {
+    history.replaceState({}, '', window.location.pathname);
+    await checkAuth();
+  }
+}
+
+function doCopy(id, btn) {
+  const txt = document.getElementById(id)?.textContent||'';
+  navigator.clipboard.writeText(txt).then(()=>{
+    btn.innerHTML=`<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>COPIED`;
+    btn.style.color='var(--cyan)';
+    setTimeout(()=>{
+      btn.innerHTML=`<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>COPY`;
+      btn.style.color='';
+    },2000);
+  });
+}
+</script>
+</body>
+</html>
