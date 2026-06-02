@@ -678,9 +678,6 @@ footer {
 
 /* === LANG SWITCHER === */
 .lang-switcher {
-  position:fixed;
-  top:16px;right:16px;
-  z-index:10000;
   display:flex;
   align-items:center;
   gap:8px;
@@ -689,12 +686,7 @@ footer {
   position:relative;
 }
 .lang-select-wrap::before {
-  content:'🌐';
-  position:absolute;
-  left:8px;top:50%;transform:translateY(-50%);
-  font-size:11px;
-  pointer-events:none;
-  z-index:1;
+  display:none;
 }
 #lang-switcher {
   background:var(--bg2);
@@ -703,15 +695,13 @@ footer {
   font-family:'Share Tech Mono',monospace;
   font-size:10px;
   letter-spacing:1px;
-  padding:6px 28px 6px 28px;
+  padding:6px 12px;
   cursor:pointer;
   outline:none;
   appearance:none;
   -webkit-appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%2300ffcc'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;
-  background-position:right 8px center;
   transition:border-color .2s;
+  border-radius:2px;
 }
 #lang-switcher:hover { border-color:var(--cyan); }
 </style>
@@ -720,27 +710,7 @@ footer {
 
 <div class="grid-bg"></div>
 
-<!-- LANG SWITCHER -->
-<div class="lang-switcher">
-  <div class="lang-select-wrap">
-    <select id="lang-switcher" onchange="setLang(this.value)">
-      <option value="fr">FR</option>
-      <option value="en">EN</option>
-      <option value="es">ES</option>
-      <option value="de">DE</option>
-      <option value="it">IT</option>
-      <option value="pt">PT</option>
-      <option value="nl">NL</option>
-      <option value="ja">JA</option>
-      <option value="zh">ZH</option>
-      <option value="ar">AR</option>
-      <option value="ru">RU</option>
-      <option value="ko">KO</option>
-      <option value="tr">TR</option>
-      <option value="pl">PL</option>
-    </select>
-  </div>
-</div>
+
 
 
 <!-- NAV -->
@@ -752,6 +722,24 @@ footer {
     <a href="#pricing">Tarifs</a>
     <a href="#faq">FAQ</a>
     <a href="ai-seo.html" class="nav-cta">// LANCER L'APP</a>
+  </div>
+  <div class="lang-select-wrap" style="margin-left:12px;">
+    <select id="lang-switcher" onchange="setLang(this.value)">
+      <option value="fr">🌐 FR</option>
+      <option value="en">🌐 EN</option>
+      <option value="es">🌐 ES</option>
+      <option value="de">🌐 DE</option>
+      <option value="it">🌐 IT</option>
+      <option value="pt">🌐 PT</option>
+      <option value="nl">🌐 NL</option>
+      <option value="ja">🌐 JA</option>
+      <option value="zh">🌐 ZH</option>
+      <option value="ar">🌐 AR</option>
+      <option value="ru">🌐 RU</option>
+      <option value="ko">🌐 KO</option>
+      <option value="tr">🌐 TR</option>
+      <option value="pl">🌐 PL</option>
+    </select>
   </div>
 </nav>
 
