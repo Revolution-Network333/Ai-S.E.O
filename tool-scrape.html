@@ -188,13 +188,13 @@ async function runScrape(){
   const rb=document.getElementById('result-box'),rc=document.getElementById('result-content');
   btn.disabled=true;st.style.display='flex';stxt.textContent='Scraping en cours...';rb.classList.remove('show');
   try{
-    const res=await fetch(JOBS_API,{method:'POST',headers:{'Content-Type':'application/json','x-api-key':JOBS_KEY},body:JSON.stringify({type:'scrape_get',params:{url,post_action:pa,language:lang}})});
+    const res=await fetch(BACKEND+'/api/job',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'scrape_get',params:{url,post_action:pa,language:lang}})});
     const {id}=await res.json();
     if(!id) throw new Error('Job non créé');
     let data={result:null};
     for(let i=0;i<30;i++){
       await new Promise(r=>setTimeout(r,1500));
-      const pr=await fetch(JOBS_API+'/'+id+'/result',{headers:{'x-api-key':JOBS_KEY}});
+      const pr=await fetch(BACKEND+'/api/job/'+id+'/result',{});
       const pd=await pr.json();
       if(pd.status==='completed'){data={result:pd.result?.result??pd.result};break;}
       if(pd.status==='failed') throw new Error(pd.error||'Job échoué');
