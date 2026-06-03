@@ -305,7 +305,7 @@ async function fetchDirect(url, options) {
       source: 'direct'
     };
   } catch(e) {
-    if (e.name === 'AbortError') throw new Error('Timeout — l\'URL ne répond pas après 10s.');
+    if (e.name === 'AbortError') throw new Error('Timeout — URL did not respond within 10s.');
     // Probablement un blocage CORS → fallback proxy
     return null;
   }
@@ -315,7 +315,7 @@ async function fetchViaProxy(url) {
   // allorigins.win : proxy CORS public, fonctionne pour GET
   const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
   const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(15000) });
-  if (!res.ok) throw new Error('Proxy CORS inaccessible (HTTP ' + res.status + ')');
+  if (!res.ok) throw new Error('CORS proxy unavailable (HTTP ' + res.status + ')');
   const d = await res.json();
   const text = d.contents || '';
   let parsed = null;
@@ -334,10 +334,10 @@ function formatResult(r) {
   const isHtml = r.contentType.includes('text/html') || (typeof r.body === 'string' && r.body.trimStart().startsWith('<'));
   if (isHtml) {
     return header +
-      `⚠ REPONSE HTML DETECTEE\n` +
-      `Cette URL retourne une page web, pas une API JSON.\n` +
-      `→ Utilisez une URL d'API REST (ex: /api/..., ?format=json)\n\n` +
-      `// APERCU (100 premiers caracteres) :\n` +
+      `⚠ HTML RESPONSE DETECTED\n` +
+      `This URL returns a web page, not a JSON API.\n` +
+      `→ Use a REST API endpoint (e.g. /api/..., ?format=json)\n\n` +
+      `// PREVIEW (first 100 chars):\n` +
       String(r.body).substring(0, 100).replace(/\s+/g, ' ') + '...';
   }
   const body = typeof r.body === 'string' ? r.body : JSON.stringify(r.body, null, 2);
@@ -346,11 +346,11 @@ function formatResult(r) {
 
 async function runHttp(){
   const ep=document.getElementById('endpoint').value.trim();
-  if(!ep){alert('Entrez un endpoint.');return;}
-  if(!/^https?:\/\/.+/.test(ep)){alert('URL invalide — doit commencer par http:// ou https://');return;}
+  if(!ep){alert('Please enter an endpoint.');return;}
+  if(!/^https?:\/\/.+/.test(ep)){alert('Invalid URL — must start with http:// or https://');return;}
   const method=document.getElementById('method').value;
   let customHeaders={};
-  try{const h=document.getElementById('headers-inp').value.trim();if(h)customHeaders=JSON.parse(h);}catch(e){alert('Headers JSON invalide.');return;}
+  try{const h=document.getElementById('headers-inp').value.trim();if(h)customHeaders=JSON.parse(h);}catch(e){alert('Invalid JSON headers.');return;}
   let bodyPayload=undefined;
   const bRaw=document.getElementById('body-inp').value.trim();
   if(bRaw && method==='POST'){
@@ -358,7 +358,7 @@ async function runHttp(){
   }
   const btn=document.getElementById('run-btn'),st=document.getElementById('status'),stxt=document.getElementById('stxt');
   const rb=document.getElementById('result-box'),rc=document.getElementById('result-content');
-  btn.disabled=true;st.style.display='flex';stxt.textContent='Requête en cours...';rb.classList.remove('show');
+  btn.disabled=true;st.style.display='flex';stxt.textContent='Sending request...';rb.classList.remove('show');
   try{
     const fetchOptions = {
       method,
@@ -366,21 +366,21 @@ async function runHttp(){
       ...(bodyPayload ? {body: bodyPayload} : {})
     };
 
-    stxt.textContent='Connexion directe...';
+    stxt.textContent='Direct connection...';
     let result = await fetchDirect(ep, fetchOptions);
 
     if (result === null) {
       // CORS bloqué — fallback proxy (GET seulement)
-      if (method !== 'GET') throw new Error('CORS bloqué et le proxy ne supporte que GET. Ajoutez les headers CORS côté serveur.');
-      stxt.textContent='CORS bloqué — tentative via proxy...';
+      if (method !== 'GET') throw new Error('CORS blocked and the proxy only supports GET. Add CORS headers server-side.');
+      stxt.textContent='CORS blocked — trying via proxy...';
       result = await fetchViaProxy(ep);
     }
 
-    stxt.textContent='Terminé !';
+    stxt.textContent='Done!';
     rc.textContent = formatResult(result);
     rb.classList.add('show');
   }catch(e){
-    stxt.textContent='Erreur';
+    stxt.textContent='Error';
     rc.innerHTML='<span class="err-msg">'+e.message+'</span>';
     rb.classList.add('show');
   }
