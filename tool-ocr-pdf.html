@@ -222,7 +222,8 @@ async function checkAuth() {
   }
   if (currentUser) {
     try {
-      const r = await fetch(BACKEND + '/auth/me', { credentials: 'include' });
+      const ctrl = new AbortController(); const tid = setTimeout(()=>ctrl.abort(),3000);
+      const r = await fetch(BACKEND + '/auth/me', { credentials: 'include', signal: ctrl.signal }); clearTimeout(tid);
       const d = await r.json();
       if (d.authenticated) { currentUser = d.user; localStorage.setItem('aiseo_user', JSON.stringify(d.user)); }
     } catch(e) {}

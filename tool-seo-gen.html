@@ -269,7 +269,7 @@ async function checkAuth() {
   }
   if (!currentUser) { const stored = localStorage.getItem('aiseo_user'); if (stored) { try { currentUser = JSON.parse(stored); } catch(e) {} } }
   if (currentUser) {
-    try { const r = await fetch(BACKEND+'/auth/me',{credentials:'include'}); const d = await r.json(); if(d.authenticated){currentUser=d.user;localStorage.setItem('aiseo_user',JSON.stringify(d.user));} } catch(e) {}
+    try { const r = await fetch(BACKEND+'/auth/me',{credentials:'include',signal:(()=>{const c=new AbortController();setTimeout(()=>c.abort(),3000);return c.signal})()}); const d = await r.json(); if(d.authenticated){currentUser=d.user;localStorage.setItem('aiseo_user',JSON.stringify(d.user));} } catch(e) {}
   }
   renderAuthBar();
   if (currentUser) loadUsage();

@@ -973,7 +973,7 @@ async function checkAuth() {
   // 3. Vérifier côté backend si la session est encore valide (optionnel)
   if (currentUser) {
     try {
-      const r = await fetch(`${BACKEND}/auth/me`, { credentials: 'include' });
+      const r = await fetch(`${BACKEND}/auth/me`, { credentials: 'include', signal: (()=>{const c=new AbortController();setTimeout(()=>c.abort(),3000);return c.signal})() });
       const d = await r.json();
       if (d.authenticated) {
         currentUser = d.user;
