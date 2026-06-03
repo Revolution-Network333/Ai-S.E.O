@@ -322,23 +322,17 @@ async function runSvg(){
   const btn=document.getElementById('run-btn'),st=document.getElementById('status'),stxt=document.getElementById('stxt');
   const rb=document.getElementById('result-box'),rc=document.getElementById('result-content');
   const preview=document.getElementById('svg-preview');
-  btn.disabled=true;st.style.display='flex';stxt.textContent='Génération SVG...';rb.classList.remove('show');preview.style.display='none';
+  btn.disabled=true;st.style.display='flex';stxt.textContent='Generating SVG...';rb.classList.remove('show');preview.style.display='none';
+  const prompt = `Generate a complete, valid SVG for the following description.\nType: ${type} | Size: ${size} | Style: ${style}\nReturn ONLY the raw SVG code starting with <svg and ending with </svg>, no markdown, no explanation.\n\nDescription: ${inp}`;
   try{
-    const res=await fetch(BACKEND+'/api/job',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'image_svg_generate',params:{description:inp,svg_type:type,size,style}})});
-    const {id}=await res.json();
-    if(!id) throw new Error('Job non créé');
-    let data={result:null};
-    for(let i=0;i<30;i++){
-      await new Promise(r=>setTimeout(r,1500));
-      const pr=await fetch(BACKEND+'/api/job/'+id+'/result',{});
-      const pd=await pr.json();
-      if(pd.status==='completed'){data={result:pd.result?.result??pd.result};break;}
-      if(pd.status==='failed') throw new Error(pd.error||'Job échoué');
-    }
-    stxt.textContent='Terminé !';
-    const svgCode=data.result||data.svg||data.output||'';
-    lastSvg=svgCode;
-    rc.textContent=svgCode;
+    stxt.textContent='Generating SVG...';
+    const svgCode = await callGenerateAPI(prompt, 'seo', 'fr');
+    stxt.textContent='Done!';
+    // extract SVG if wrapped in markdown
+    const svgMatch = svgCode.match(/<svg[\s\S]*<\/svg>/i);
+    const cleanSvg = svgMatch ? svgMatch[0] : svgCode;
+    lastSvg=cleanSvg;
+    rc.textContent=cleanSvg;
     if(svgCode.includes('<svg')){
       preview.innerHTML=svgCode;preview.style.display='block';
       document.getElementById('dl-btn').style.display='inline-flex';
@@ -349,6 +343,29 @@ async function runSvg(){
 }
 
 
+
+
+// ── Standard API call ──────────────────────────────────────────────────────
+async function callGenerateAPI(prompt, type, langCode='fr') {
+  if (!currentUser) throw new Error('Please log in to use this tool.');
+  const res = await fetch(BACKEND + '/api/generate', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json', 'x-user-id': currentUser.id },
+    body: JSON.stringify({ input: prompt, types: [type], language: langCode })
+  });
+  if (res.status === 401) { window.location.href = BACKEND + '/auth/google'; throw new Error('login'); }
+  if (res.status === 429) {
+    const d = await res.json().catch(() => ({}));
+    throw new Error('Generation limit reached — ' + (d.message || 'upgrade to Pro for unlimited access'));
+  }
+  if (!res.ok) {
+    const t = await res.text().catch(() => '');
+    throw new Error('Server error HTTP ' + res.status + (t ? ' : ' + t.substring(0, 150) : ''));
+  }
+  const d = await res.json();
+  return d.results?.[type] || d.result || d.output || d.content || JSON.stringify(d, null, 2);
+}
 
 // ── Auth & Payment ──
 let currentUser = null;

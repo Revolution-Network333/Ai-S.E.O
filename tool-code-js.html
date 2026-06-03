@@ -297,27 +297,48 @@ async function runCode(){
   if(raw)try{inputData=JSON.parse(raw);}catch(e){alert('JSON de données invalide.');return;}
   const btn=document.getElementById('run-btn'),st=document.getElementById('status'),stxt=document.getElementById('stxt');
   const rb=document.getElementById('result-box'),rc=document.getElementById('result-content');
-  btn.disabled=true;st.style.display='flex';stxt.textContent='Exécution...';rb.classList.remove('show');
+  btn.disabled=true;st.style.display='flex';stxt.textContent='Running code...';rb.classList.remove('show');
+  const dataNote = Object.keys(inputData).length ? '\n\nInput data (JSON):\n' + JSON.stringify(inputData, null, 2) : '';
+  const prompt = `You are a JavaScript execution engine. Execute the following JavaScript code and return ONLY the output/result, no explanation.${dataNote}\n\nCode:\n\`\`\`javascript\n${code}\n\`\`\`\n\nReturn the execution result as plain text or JSON.`;
   try{
-    const res=await fetch(BACKEND+'/api/job',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'code_run_js',params:{code,data:inputData}})}); 
-    const {id}=await res.json();
-    if(!id) throw new Error('Job non créé');
-    let data={result:null};
-    for(let i=0;i<30;i++){
-      await new Promise(r=>setTimeout(r,1500));
-      const pr=await fetch(BACKEND+'/api/job/'+id+'/result',{});
-      const pd=await pr.json();
-      if(pd.status==='completed'){data={result:pd.result?.result??pd.result};break;}
-      if(pd.status==='failed') throw new Error(pd.error||'Job échoué');
-    }
-    stxt.textContent='Terminé !';
-    rc.textContent=JSON.stringify(data.result||data.output||data,null,2);
+    stxt.textContent='Running code...';
+    const result = await callGenerateAPI(prompt, 'seo', 'fr');
+    stxt.textContent='Done!';
+    rc.textContent=result;
     rb.classList.add('show');
-  }catch(e){stxt.textContent='Erreur';rc.innerHTML='<span class="err-msg">'+e.message+'</span>';rb.classList.add('show');}
+  }catch(e){
+    if(e.message==='login') return;
+    stxt.textContent='Error';
+    rc.innerHTML='<span class="err-msg">'+e.message+'</span>';
+    rb.classList.add('show');
+  }
   btn.disabled=false;
 }
 
 
+
+
+// ── Standard API call ──────────────────────────────────────────────────────
+async function callGenerateAPI(prompt, type, langCode='fr') {
+  if (!currentUser) throw new Error('Please log in to use this tool.');
+  const res = await fetch(BACKEND + '/api/generate', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json', 'x-user-id': currentUser.id },
+    body: JSON.stringify({ input: prompt, types: [type], language: langCode })
+  });
+  if (res.status === 401) { window.location.href = BACKEND + '/auth/google'; throw new Error('login'); }
+  if (res.status === 429) {
+    const d = await res.json().catch(() => ({}));
+    throw new Error('Generation limit reached — ' + (d.message || 'upgrade to Pro for unlimited access'));
+  }
+  if (!res.ok) {
+    const t = await res.text().catch(() => '');
+    throw new Error('Server error HTTP ' + res.status + (t ? ' : ' + t.substring(0, 150) : ''));
+  }
+  const d = await res.json();
+  return d.results?.[type] || d.result || d.output || d.content || JSON.stringify(d, null, 2);
+}
 
 // ── Auth & Payment ──
 let currentUser = null;

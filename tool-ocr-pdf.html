@@ -291,30 +291,51 @@ async function runOcr(){
   const action=document.getElementById('ocr-action').value;
   const btn=document.getElementById('run-btn'),st=document.getElementById('status'),stxt=document.getElementById('stxt');
   const rb=document.getElementById('result-box'),rc=document.getElementById('result-content');
-  btn.disabled=true;st.style.display='flex';stxt.textContent='OCR + traitement...';rb.classList.remove('show');
+  btn.disabled=true;st.style.display='flex';stxt.textContent='Processing...';rb.classList.remove('show');
+  const actionLabels={
+    'résumer':'Summarize the following text concisely, keeping all key information.',
+    'extraire les informations clés':'Extract and list all key information, facts, figures, names and dates from the following text.',
+    'structurer en JSON':'Convert the following text into a structured JSON object with appropriate keys. Return ONLY valid JSON.',
+    'reformatter':'Reformat and clean up the following text for better readability, fix formatting issues.',
+    'traduire en français':'Translate the following text to French. Return ONLY the translation.',
+    'analyser':'Provide a detailed analysis of the following text: main topics, tone, structure, key points.'
+  };
+  const source = raw ? raw : `[Content from URL: ${url} — paste the extracted text below if URL fetch is unavailable]\n${raw}`;
+  const prompt = `${actionLabels[action]||action}\n\nText:\n${raw||'URL: '+url}`;
   try{
-    const ocrParams={post_action:action};
-    if(url)ocrParams.url=url;
-    if(raw)ocrParams.raw_text=raw;
-    const res=await fetch(BACKEND+'/api/job',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'ocr_pdf',params:ocrParams})});
-    const {id}=await res.json();
-    if(!id) throw new Error('Job non créé');
-    let data={result:null};
-    for(let i=0;i<30;i++){
-      await new Promise(r=>setTimeout(r,1500));
-      const pr=await fetch(BACKEND+'/api/job/'+id+'/result',{});
-      const pd=await pr.json();
-      if(pd.status==='completed'){data={result:pd.result?.result??pd.result};break;}
-      if(pd.status==='failed') throw new Error(pd.error||'Job échoué');
-    }
-    stxt.textContent='Terminé !';
-    rc.textContent=data.result||data.output||data.text||JSON.stringify(data,null,2);
+    stxt.textContent='Processing with AI...';
+    const result = await callGenerateAPI(prompt, 'seo', 'fr');
+    stxt.textContent='Done!';
+    rc.textContent=result;
     rb.classList.add('show');
   }catch(e){stxt.textContent='Erreur';rc.innerHTML='<span class="err-msg">'+e.message+'</span>';rb.classList.add('show');}
   btn.disabled=false;
 }
 
 
+
+
+// ── Standard API call ──────────────────────────────────────────────────────
+async function callGenerateAPI(prompt, type, langCode='fr') {
+  if (!currentUser) throw new Error('Please log in to use this tool.');
+  const res = await fetch(BACKEND + '/api/generate', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json', 'x-user-id': currentUser.id },
+    body: JSON.stringify({ input: prompt, types: [type], language: langCode })
+  });
+  if (res.status === 401) { window.location.href = BACKEND + '/auth/google'; throw new Error('login'); }
+  if (res.status === 429) {
+    const d = await res.json().catch(() => ({}));
+    throw new Error('Generation limit reached — ' + (d.message || 'upgrade to Pro for unlimited access'));
+  }
+  if (!res.ok) {
+    const t = await res.text().catch(() => '');
+    throw new Error('Server error HTTP ' + res.status + (t ? ' : ' + t.substring(0, 150) : ''));
+  }
+  const d = await res.json();
+  return d.results?.[type] || d.result || d.output || d.content || JSON.stringify(d, null, 2);
+}
 
 // ── Auth & Payment ──
 let currentUser = null;

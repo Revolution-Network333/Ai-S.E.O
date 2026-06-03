@@ -309,28 +309,56 @@ async function runPipeline(){
   const out=document.getElementById('output-format').value;
   const btn=document.getElementById('run-btn'),st=document.getElementById('status'),stxt=document.getElementById('stxt');
   const rb=document.getElementById('result-box'),rc=document.getElementById('result-content');
-  btn.disabled=true;st.style.display='flex';stxt.textContent='Pipeline en cours...';rb.classList.remove('show');
+  btn.disabled=true;st.style.display='flex';stxt.textContent='Processing data...';rb.classList.remove('show');
+  const opLabels={
+    'nettoyer':'Clean and normalize the data (fix encoding, remove duplicates, standardize values)',
+    'restructurer':'Restructure and reorganize the data into a cleaner, more logical format',
+    'convertir_json':'Convert the data to JSON format. Return ONLY valid JSON.',
+    'convertir_csv':'Convert the data to CSV format. Return ONLY the CSV content.',
+    'filtrer_doublons':'Remove all duplicate entries from the data and return the deduplicated result.',
+    'aplatir':'Flatten any nested structures into a simple flat format.',
+    'valider':'Validate the data structure and report any errors, missing fields, or inconsistencies.'
+  };
+  const prompt = `Input format: ${fmt}\nOperation: ${opLabels[op]||op}\nDesired output format: ${out}\n\nPerform the operation on the following data and return ONLY the processed result:\n\n${raw}`;
   try{
-    const res=await fetch(BACKEND+'/api/job',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'data_processing',params:{data:raw,input_format:fmt,operation:op,output_format:out}})});
-    const {id}=await res.json();
-    if(!id) throw new Error('Job non créé');
-    let data={result:null};
-    for(let i=0;i<30;i++){
-      await new Promise(r=>setTimeout(r,1500));
-      const pr=await fetch(BACKEND+'/api/job/'+id+'/result',{});
-      const pd=await pr.json();
-      if(pd.status==='completed'){data={result:pd.result?.result??pd.result};break;}
-      if(pd.status==='failed') throw new Error(pd.error||'Job échoué');
-    }
-    stxt.textContent='Terminé !';
-    const result=data.result||data.output||data;
-    rc.textContent=typeof result==='string'?result:JSON.stringify(result,null,2);
+    stxt.textContent='Processing data...';
+    const result = await callGenerateAPI(prompt, 'seo', 'fr');
+    stxt.textContent='Done!';
+    rc.textContent=result;
     rb.classList.add('show');
-  }catch(e){stxt.textContent='Erreur';rc.innerHTML='<span class="err-msg">'+e.message+'</span>';rb.classList.add('show');}
+  }catch(e){
+    if(e.message==='login') return;
+    stxt.textContent='Error';
+    rc.innerHTML='<span class="err-msg">'+e.message+'</span>';
+    rb.classList.add('show');
+  }
   btn.disabled=false;
 }
 
 
+
+
+// ── Standard API call ──────────────────────────────────────────────────────
+async function callGenerateAPI(prompt, type, langCode='fr') {
+  if (!currentUser) throw new Error('Please log in to use this tool.');
+  const res = await fetch(BACKEND + '/api/generate', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json', 'x-user-id': currentUser.id },
+    body: JSON.stringify({ input: prompt, types: [type], language: langCode })
+  });
+  if (res.status === 401) { window.location.href = BACKEND + '/auth/google'; throw new Error('login'); }
+  if (res.status === 429) {
+    const d = await res.json().catch(() => ({}));
+    throw new Error('Generation limit reached — ' + (d.message || 'upgrade to Pro for unlimited access'));
+  }
+  if (!res.ok) {
+    const t = await res.text().catch(() => '');
+    throw new Error('Server error HTTP ' + res.status + (t ? ' : ' + t.substring(0, 150) : ''));
+  }
+  const d = await res.json();
+  return d.results?.[type] || d.result || d.output || d.content || JSON.stringify(d, null, 2);
+}
 
 // ── Auth & Payment ──
 let currentUser = null;

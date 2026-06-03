@@ -308,7 +308,7 @@ async function runTransform(){
   const stxt=document.getElementById('stxt');
   const rb=document.getElementById('result-box');
   const rc=document.getElementById('result-content');
-  btn.disabled=true;st.style.display='flex';stxt.textContent='Envoi à l\'API...';rb.classList.remove('show');
+  btn.disabled=true;st.style.display='flex';stxt.textContent='Sending to AI...';rb.classList.remove('show');
 
   // Prompts IA par action
   const prompts={
@@ -353,26 +353,41 @@ ${inp}`,
   const template = prompts[action] || prompts['reformuler'];
 
   try{
-    stxt.textContent='Envoi du job...';
-    const res=await fetch(BACKEND+'/api/job',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'text_generate_template',params:{template,variables:{}}})});
-    const {id}=await res.json();
-    if(!id) throw new Error('Job non créé');
-    let result=null;
-    for(let i=0;i<30;i++){
-      await new Promise(r=>setTimeout(r,1500));
-      stxt.textContent='Génération IA... ('+(i+1)+')';
-      const pr=await fetch(BACKEND+'/api/job/'+id+'/result',{});
-      const pd=await pr.json();
-      if(pd.status==='completed'){result=pd.result?.result??pd.result;break;}
-      if(pd.status==='failed') throw new Error(pd.error||'Job échoué');
-    }
-    if(!result) throw new Error('Timeout');
-    stxt.textContent='Terminé !';
-    rc.textContent=typeof result==='string'?result:JSON.stringify(result,null,2);
+    stxt.textContent='Sending to AI...';
+    const result = await callGenerateAPI(template, 'seo', 'fr');
+    stxt.textContent='Done!';
+    rc.textContent = typeof result==='string' ? result : JSON.stringify(result,null,2);
     rb.classList.add('show');
-  }catch(e){stxt.textContent='Erreur réseau';rc.innerHTML='<span class=\"err-msg\">'+e.message+'</span>';rb.classList.add('show');}
+  }catch(e){
+    if(e.message==='login') return;
+    stxt.textContent='Error';
+    rc.innerHTML='<span class="err-msg">'+e.message+'</span>';
+    rb.classList.add('show');
+  }
   btn.disabled=false;
 }
+// ── Standard API call ──────────────────────────────────────────────────────
+async function callGenerateAPI(prompt, type, langCode='fr') {
+  if (!currentUser) throw new Error('Please log in to use this tool.');
+  const res = await fetch(BACKEND + '/api/generate', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json', 'x-user-id': currentUser.id },
+    body: JSON.stringify({ input: prompt, types: [type], language: langCode })
+  });
+  if (res.status === 401) { window.location.href = BACKEND + '/auth/google'; throw new Error('login'); }
+  if (res.status === 429) {
+    const d = await res.json().catch(() => ({}));
+    throw new Error('Generation limit reached — ' + (d.message || 'upgrade to Pro for unlimited access'));
+  }
+  if (!res.ok) {
+    const t = await res.text().catch(() => '');
+    throw new Error('Server error HTTP ' + res.status + (t ? ' : ' + t.substring(0, 150) : ''));
+  }
+  const d = await res.json();
+  return d.results?.[type] || d.result || d.output || d.content || JSON.stringify(d, null, 2);
+}
+
 
 
 
