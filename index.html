@@ -232,130 +232,123 @@ nav {
 
 <!-- Lang Switcher -->
 <script>
-const LANGS = { fr:'fr', en:'en', es:'es', de:'de', it:'it' };
+const I18N = {
+  fr: {
+    hero_node:"TOOLS NETWORK · NODE ACTIF",
+    hero_sub:"// 10 outils · API intégrée · Génération temps réel",
+    cat1:"// 01 · TEXT TOOLS", cat2:"// 02 · WEB TOOLS",
+    cat3:"// 03 · DATA TOOLS", cat4:"// 04 · VISUAL TOOLS",
+    outils3:"3 OUTILS", outils2:"2 OUTILS",
+    tt_desc:"Reformuler, traduire, changer le ton, optimiser pour le SEO ou convertir en email professionnel.",
+    seo_desc:"Génère fiches produit, posts sociaux, articles SEO et emailings optimisés à partir d'une description ou URL.",
+    cc_desc:"Analyser la qualité d'un texte : score SEO, lisibilité, densité de mots-clés, suggestions.",
+    ws_desc:"Extraire le contenu d'une URL et le transformer : résumé, fiche produit, analyse concurrentielle.",
+    http_desc:"Interroger une API externe ou récupérer des données JSON depuis n'importe quel endpoint HTTP.",
+    js_desc:"Exécuter du JavaScript côté serveur : calculs TVA, slugs SEO, validation EAN, extraction données.",
+    csv_desc:"Analyser un fichier CSV : statistiques descriptives, détection anomalies, tendances, export rapport.",
+    ocr_desc:"Extraire le texte d'un PDF scanné ou d'une image, puis le reformater, résumer ou analyser.",
+    svg_desc:"Générer des icônes SVG, banners, logos ou infographies à partir d'une description texte.",
+    dp_desc:"Transformer, nettoyer et restructurer des données JSON, XML ou CSV via des pipelines automatisés.",
+    open:"→ OUVRIR", actifs:"OUTILS ACTIFS"
+  },
+  en: {
+    hero_node:"TOOLS NETWORK · ACTIVE NODE",
+    hero_sub:"// 10 tools · Integrated API · Real-time generation",
+    cat1:"// 01 · TEXT TOOLS", cat2:"// 02 · WEB TOOLS",
+    cat3:"// 03 · DATA TOOLS", cat4:"// 04 · VISUAL TOOLS",
+    outils3:"3 TOOLS", outils2:"2 TOOLS",
+    tt_desc:"Rephrase, translate, change tone, optimize for SEO or convert to a professional email.",
+    seo_desc:"Generate product sheets, social posts, SEO articles and optimized emails from a description or URL.",
+    cc_desc:"Analyze text quality: SEO score, readability, keyword density, suggestions.",
+    ws_desc:"Extract content from a URL and transform it: summary, product sheet, competitive analysis.",
+    http_desc:"Query an external API or retrieve JSON data from any HTTP endpoint.",
+    js_desc:"Run JavaScript server-side: VAT calculations, SEO slugs, EAN validation, data extraction.",
+    csv_desc:"Analyze a CSV file: descriptive statistics, anomaly detection, trends, report export.",
+    ocr_desc:"Extract text from a scanned PDF or image, then reformat, summarize or analyze it.",
+    svg_desc:"Generate SVG icons, banners, logos or infographics from a text description.",
+    dp_desc:"Transform, clean and restructure JSON, XML or CSV data through automated pipelines.",
+    open:"→ OPEN", actifs:"ACTIVE TOOLS"
+  },
+  es: {
+    hero_node:"RED DE HERRAMIENTAS · NODO ACTIVO",
+    hero_sub:"// 10 herramientas · API integrada · Generación en tiempo real",
+    cat1:"// 01 · HERRAMIENTAS DE TEXTO", cat2:"// 02 · HERRAMIENTAS WEB",
+    cat3:"// 03 · HERRAMIENTAS DE DATOS", cat4:"// 04 · HERRAMIENTAS VISUALES",
+    outils3:"3 HERRAMIENTAS", outils2:"2 HERRAMIENTAS",
+    tt_desc:"Reformular, traducir, cambiar el tono, optimizar para SEO o convertir en email profesional.",
+    seo_desc:"Genera fichas de producto, publicaciones sociales, artículos SEO y emails optimizados desde una descripción o URL.",
+    cc_desc:"Analizar la calidad de un texto: puntuación SEO, legibilidad, densidad de palabras clave, sugerencias.",
+    ws_desc:"Extraer el contenido de una URL y transformarlo: resumen, ficha de producto, análisis competitivo.",
+    http_desc:"Consultar una API externa o recuperar datos JSON desde cualquier endpoint HTTP.",
+    js_desc:"Ejecutar JavaScript en el servidor: cálculos de IVA, slugs SEO, validación EAN, extracción de datos.",
+    csv_desc:"Analizar un archivo CSV: estadísticas descriptivas, detección de anomalías, tendencias, exportar informe.",
+    ocr_desc:"Extraer texto de un PDF escaneado o imagen, luego reformatearlo, resumirlo o analizarlo.",
+    svg_desc:"Generar iconos SVG, banners, logos o infografías a partir de una descripción de texto.",
+    dp_desc:"Transformar, limpiar y reestructurar datos JSON, XML o CSV mediante pipelines automatizados.",
+    open:"→ ABRIR", actifs:"HERRAMIENTAS ACTIVAS"
+  },
+  de: {
+    hero_node:"TOOLS-NETZWERK · AKTIVER KNOTEN",
+    hero_sub:"// 10 Tools · Integrierte API · Echtzeit-Generierung",
+    cat1:"// 01 · TEXT-TOOLS", cat2:"// 02 · WEB-TOOLS",
+    cat3:"// 03 · DATEN-TOOLS", cat4:"// 04 · VISUAL-TOOLS",
+    outils3:"3 TOOLS", outils2:"2 TOOLS",
+    tt_desc:"Umformulieren, übersetzen, Ton ändern, für SEO optimieren oder in professionelle E-Mail umwandeln.",
+    seo_desc:"Produktblätter, Social-Posts, SEO-Artikel und optimierte E-Mails aus einer Beschreibung oder URL generieren.",
+    cc_desc:"Textqualität analysieren: SEO-Score, Lesbarkeit, Schlüsselwortdichte, Vorschläge.",
+    ws_desc:"Inhalt einer URL extrahieren und transformieren: Zusammenfassung, Produktblatt, Wettbewerbsanalyse.",
+    http_desc:"Externe API abfragen oder JSON-Daten von einem beliebigen HTTP-Endpunkt abrufen.",
+    js_desc:"JavaScript serverseitig ausführen: MwSt-Berechnungen, SEO-Slugs, EAN-Validierung, Datenextraktion.",
+    csv_desc:"CSV-Datei analysieren: deskriptive Statistiken, Anomalieerkennung, Trends, Bericht exportieren.",
+    ocr_desc:"Text aus gescanntem PDF oder Bild extrahieren, dann neu formatieren, zusammenfassen oder analysieren.",
+    svg_desc:"SVG-Icons, Banner, Logos oder Infografiken aus einer Textbeschreibung generieren.",
+    dp_desc:"JSON-, XML- oder CSV-Daten durch automatisierte Pipelines transformieren, bereinigen und umstrukturieren.",
+    open:"→ ÖFFNEN", actifs:"AKTIVE TOOLS"
+  },
+  it: {
+    hero_node:"RETE STRUMENTI · NODO ATTIVO",
+    hero_sub:"// 10 strumenti · API integrata · Generazione in tempo reale",
+    cat1:"// 01 · STRUMENTI DI TESTO", cat2:"// 02 · STRUMENTI WEB",
+    cat3:"// 03 · STRUMENTI DATI", cat4:"// 04 · STRUMENTI VISIVI",
+    outils3:"3 STRUMENTI", outils2:"2 STRUMENTI",
+    tt_desc:"Riformulare, tradurre, cambiare tono, ottimizzare per SEO o convertire in email professionale.",
+    seo_desc:"Genera schede prodotto, post social, articoli SEO ed email ottimizzate da una descrizione o URL.",
+    cc_desc:"Analizzare la qualità di un testo: punteggio SEO, leggibilità, densità di parole chiave, suggerimenti.",
+    ws_desc:"Estrarre il contenuto di un URL e trasformarlo: riassunto, scheda prodotto, analisi competitiva.",
+    http_desc:"Interrogare un'API esterna o recuperare dati JSON da qualsiasi endpoint HTTP.",
+    js_desc:"Eseguire JavaScript lato server: calcoli IVA, slug SEO, validazione EAN, estrazione dati.",
+    csv_desc:"Analizzare un file CSV: statistiche descrittive, rilevamento anomalie, tendenze, esportare report.",
+    ocr_desc:"Estrarre testo da un PDF scansionato o immagine, poi riformattarlo, riassumerlo o analizzarlo.",
+    svg_desc:"Generare icone SVG, banner, loghi o infografiche da una descrizione testuale.",
+    dp_desc:"Trasformare, pulire e ristrutturare dati JSON, XML o CSV tramite pipeline automatizzate.",
+    open:"→ APRI", actifs:"STRUMENTI ATTIVI"
+  }
+};
+
 let currentLang = localStorage.getItem('aiseo_lang') || 'fr';
-let originalTexts = new Map();
-let isTranslating = false;
 
-// LibreTranslate public instances (fallback chain)
-const LT_INSTANCES = [
-  'https://libretranslate.com',
-  'https://translate.terraprint.co',
-  'https://lt.vern.cc',
-  'https://translate.argosopentech.com',
-];
-
-async function libreTranslate(texts, targetLang) {
-  for (const instance of LT_INSTANCES) {
-    try {
-      const res = await fetch(`${instance}/translate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ q: texts, source: 'fr', target: targetLang, format: 'text' }),
-        signal: AbortSignal.timeout(8000)
-      });
-      if (!res.ok) continue;
-      const data = await res.json();
-      // Array response: [{translatedText: '...'}] or [{translatedText: '...'}, ...]
-      if (Array.isArray(data)) return data.map(d => d.translatedText);
-      // Some instances return single object for single string
-      if (data.translatedText) return texts.map(() => data.translatedText);
-    } catch(e) { continue; }
-  }
-  return null;
-}
-
-function getCacheKey(lang) { return `aiseo_trans_${lang}_${location.pathname}`; }
-
-function getTextNodes() {
-  const walker = document.createTreeWalker(
-    document.body, NodeFilter.SHOW_TEXT,
-    { acceptNode: n => {
-        const p = n.parentElement;
-        if (!p) return NodeFilter.FILTER_REJECT;
-        if (['SCRIPT','STYLE','NOSCRIPT','OPTION'].includes(p.tagName)) return NodeFilter.FILTER_REJECT;
-        if (p.closest('[data-notranslate]')) return NodeFilter.FILTER_REJECT;
-        if (n.textContent.trim().length < 2) return NodeFilter.FILTER_REJECT;
-        return NodeFilter.FILTER_ACCEPT;
-    }}
-  );
-  const nodes = [];
-  while (walker.nextNode()) nodes.push(walker.currentNode);
-  return nodes;
-}
-
-async function translatePage(targetLang) {
-  if (isTranslating) return;
-  isTranslating = true;
-
-  if (targetLang === 'fr') {
-    originalTexts.forEach((text, node) => { node.textContent = text; });
-    localStorage.setItem('aiseo_lang', 'fr');
-    updateFlags('fr');
-    isTranslating = false;
-    return;
-  }
-
-  const nodes = getTextNodes();
-
-  // Save originals (only once, from FR source)
-  nodes.forEach(n => { if (!originalTexts.has(n)) originalTexts.set(n, n.textContent); });
-
-  const frTexts = nodes.map(n => originalTexts.get(n));
-
-  // Try cache first
-  try {
-    const cached = JSON.parse(localStorage.getItem(getCacheKey(targetLang)));
-    if (cached && cached.length === frTexts.length) {
-      nodes.forEach((n, i) => { n.textContent = cached[i]; });
-      localStorage.setItem('aiseo_lang', targetLang);
-      updateFlags(targetLang);
-      isTranslating = false;
-      return;
-    }
-  } catch(e) {}
-
-  // Translate in batches of 50 (LibreTranslate handles arrays)
-  const BATCH = 50;
-  const allTranslated = [];
-  for (let i = 0; i < frTexts.length; i += BATCH) {
-    const batch = frTexts.slice(i, i + BATCH);
-    const results = await libreTranslate(batch, targetLang);
-    if (results) {
-      allTranslated.push(...results);
-      results.forEach((t, j) => { if (nodes[i + j]) nodes[i + j].textContent = t; });
-    } else {
-      // Fallback: keep original texts for this batch
-      batch.forEach((t, j) => { allTranslated.push(t); });
-    }
-  }
-
-  // Cache results
-  try { localStorage.setItem(getCacheKey(targetLang), JSON.stringify(allTranslated)); } catch(e) {}
-
-  localStorage.setItem('aiseo_lang', targetLang);
-  updateFlags(targetLang);
-  isTranslating = false;
-}
-
-function updateFlags(lang) {
+function applyLang(lang) {
+  const dict = I18N[lang] || I18N.fr;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    if (dict[key]) el.textContent = dict[key];
+  });
   document.querySelectorAll('.lang-flag').forEach(f => {
     const active = f.dataset.lang === lang;
     f.style.opacity = active ? '1' : '0.35';
     f.style.transform = active ? 'scale(1.25)' : 'scale(1)';
     f.style.filter = active ? 'drop-shadow(0 0 4px rgba(0,255,204,0.8))' : 'none';
   });
+  localStorage.setItem('aiseo_lang', lang);
+  currentLang = lang;
 }
 
 function switchLang(lang) {
-  if (lang === currentLang || isTranslating) return;
-  currentLang = lang;
-  translatePage(lang);
+  applyLang(lang);
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  updateFlags(currentLang);
-  if (currentLang !== 'fr') translatePage(currentLang);
+  applyLang(currentLang);
 });
 
 </script>
@@ -367,12 +360,14 @@ window.addEventListener('DOMContentLoaded', () => {
   margin-left: 10px !important;
 }
 .lang-flag {
-  font-size: 20px !important;
+  width: 22px !important;
+  height: auto !important;
   cursor: pointer !important;
   opacity: 0.35 !important;
   transition: opacity 0.2s, transform 0.2s, filter 0.2s !important;
-  line-height: 1 !important;
   user-select: none !important;
+  border-radius: 2px !important;
+  display: block !important;
 }
 .lang-flag:hover { opacity: 0.75 !important; }
 #google_translate_element_hidden,
@@ -394,19 +389,19 @@ body { top: 0 !important; }
   <div id="auth-bar" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
     <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text2);letter-spacing:2px;">[ CHECKING... ]</span>
   </div>
-  <div class="lang-switcher">
-    <span class="lang-flag" data-lang="fr" onclick="switchLang('fr')" title="Français">🇫🇷</span>
-    <span class="lang-flag" data-lang="en" onclick="switchLang('en')" title="English">🇬🇧</span>
-    <span class="lang-flag" data-lang="es" onclick="switchLang('es')" title="Español">🇪🇸</span>
-    <span class="lang-flag" data-lang="de" onclick="switchLang('de')" title="Deutsch">🇩🇪</span>
-    <span class="lang-flag" data-lang="it" onclick="switchLang('it')" title="Italiano">🇮🇹</span>
+    <div class="lang-switcher">
+    <img class="lang-flag" data-lang="fr" onclick="switchLang('fr')" title="Français" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMCAyMCI+PHJlY3Qgd2lkdGg9IjEwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjMDAyMzk1Ii8+PHJlY3QgeD0iMTAiIHdpZHRoPSIxMCIgaGVpZ2h0PSIyMCIgZmlsbD0iI2ZmZiIvPjxyZWN0IHg9IjIwIiB3aWR0aD0iMTAiIGhlaWdodD0iMjAiIGZpbGw9IiNFRDI5MzkiLz48L3N2Zz4=" width="22" alt="FR">
+    <img class="lang-flag" data-lang="en" onclick="switchLang('en')" title="English" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MCAzMCI+PHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjMwIiBmaWxsPSIjMDEyMTY5Ii8+PHBhdGggZD0iTTAsMCBMNjAsMzAgTTYwLDAgTDAsMzAiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSI2Ii8+PHBhdGggZD0iTTAsMCBMNjAsMzAgTTYwLDAgTDAsMzAiIHN0cm9rZT0iI0M4MTAyRSIgc3Ryb2tlLXdpZHRoPSI0Ii8+PHBhdGggZD0iTTMwLDAgVjMwIE0wLDE1IEg2MCIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjEwIi8+PHBhdGggZD0iTTMwLDAgVjMwIE0wLDE1IEg2MCIgc3Ryb2tlPSIjQzgxMDJFIiBzdHJva2Utd2lkdGg9IjYiLz48L3N2Zz4=" width="22" alt="EN">
+    <img class="lang-flag" data-lang="es" onclick="switchLang('es')" title="Español" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMCAyMCI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjYzYwYjFlIi8+PHJlY3QgeT0iNSIgd2lkdGg9IjMwIiBoZWlnaHQ9IjEwIiBmaWxsPSIjZmZjNDAwIi8+PC9zdmc+" width="22" alt="ES">
+    <img class="lang-flag" data-lang="de" onclick="switchLang('de')" title="Deutsch" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMCAyMCI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjEwIiBmaWxsPSIjMDAwIi8+PHJlY3QgeT0iMTAiIHdpZHRoPSIzMCIgaGVpZ2h0PSIxMCIgZmlsbD0iI0QwMCIvPjxyZWN0IHk9IjE0IiB3aWR0aD0iMzAiIGhlaWdodD0iNyIgZmlsbD0iI0ZGQ0UwMCIvPjwvc3ZnPg==" width="22" alt="DE">
+    <img class="lang-flag" data-lang="it" onclick="switchLang('it')" title="Italiano" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMCAyMCI+PHJlY3Qgd2lkdGg9IjEwIiBoZWlnaHQ9IjIwIiBmaWxsPSIjMDA5MjQ2Ii8+PHJlY3QgeD0iMTAiIHdpZHRoPSIxMCIgaGVpZ2h0PSIyMCIgZmlsbD0iI2ZmZiIvPjxyZWN0IHg9IjIwIiB3aWR0aD0iMTAiIGhlaWdodD0iMjAiIGZpbGw9IiNDRTJCMzciLz48L3N2Zz4=" width="22" alt="IT">
   </div>
 </nav>
 
 <div class="hero">
-  <div class="hero-tag"><span class="nav-dot"></span>TOOLS NETWORK · NODE ACTIF</div>
+  <div class="hero-tag"><span class="nav-dot"></span><span data-i18n="hero_node">TOOLS NETWORK · NODE ACTIF</span></div>
   <h1 class="hero-title" data-text="AI TOOLS HUB">AI TOOLS HUB</h1>
-  <p class="hero-sub">// 10 outils · API intégrée · Génération temps réel</p>
+  <p class="hero-sub" data-i18n="hero_sub">// 10 outils · API intégrée · Génération temps réel</p>
 </div>
 
 
@@ -421,9 +416,9 @@ body { top: 0 !important; }
   <!-- TEXT TOOLS -->
   <div class="cat-section">
     <div class="cat-header">
-      <span class="cat-label">// 01 · TEXT TOOLS</span>
+      <span class="cat-label" data-i18n="cat1">// 01 · TEXT TOOLS</span>
       <div class="cat-line"></div>
-      <span class="cat-count">3 OUTILS</span>
+      <span class="cat-count" data-i18n="outils3">3 OUTILS</span>
     </div>
     <div class="tools-grid">
 
@@ -432,8 +427,8 @@ body { top: 0 !important; }
         <div class="tool-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg></div>
         <div class="tool-name">TEXT TRANSFORM</div>
         <div class="tool-job">// job: text_transform</div>
-        <div class="tool-desc">Reformuler, traduire, changer le ton, optimiser pour le SEO ou convertir en email professionnel.</div>
-        <span class="tool-arrow">→ OUVRIR</span>
+        <div class="tool-desc" data-i18n="tt_desc">Reformuler, traduire, changer le ton, optimiser pour le SEO ou convertir en email professionnel.</div>
+        <span class="tool-arrow" data-i18n="open">→ OUVRIR</span>
       </a>
 
       <a href="tool-seo-gen.html" class="tool-card">
@@ -441,8 +436,8 @@ body { top: 0 !important; }
         <div class="tool-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div>
         <div class="tool-name">SEO GENERATOR</div>
         <div class="tool-job">// job: seo_content_generate</div>
-        <div class="tool-desc">Génère fiches produit, posts sociaux, articles SEO et emailings optimisés à partir d'une description ou URL.</div>
-        <span class="tool-arrow">→ OUVRIR</span>
+        <div class="tool-desc" data-i18n="seo_desc">Génère fiches produit, posts sociaux, articles SEO et emailings optimisés à partir d'une description ou URL.</div>
+        <span class="tool-arrow" data-i18n="open">→ OUVRIR</span>
       </a>
 
       <a href="tool-content-check.html" class="tool-card">
@@ -450,8 +445,8 @@ body { top: 0 !important; }
         <div class="tool-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg></div>
         <div class="tool-name">CONTENT CHECK</div>
         <div class="tool-job">// job: content_check</div>
-        <div class="tool-desc">Analyser la qualité d'un texte : score SEO, lisibilité, densité de mots-clés, suggestions.</div>
-        <span class="tool-arrow">→ OUVRIR</span>
+        <div class="tool-desc" data-i18n="cc_desc">Analyser la qualité d'un texte : score SEO, lisibilité, densité de mots-clés, suggestions.</div>
+        <span class="tool-arrow" data-i18n="open">→ OUVRIR</span>
       </a>
 
     </div>
@@ -460,9 +455,9 @@ body { top: 0 !important; }
   <!-- WEB TOOLS -->
   <div class="cat-section">
     <div class="cat-header">
-      <span class="cat-label">// 02 · WEB TOOLS</span>
+      <span class="cat-label" data-i18n="cat2">// 02 · WEB TOOLS</span>
       <div class="cat-line"></div>
-      <span class="cat-count">3 OUTILS</span>
+      <span class="cat-count" data-i18n="outils3">3 OUTILS</span>
     </div>
     <div class="tools-grid">
 
@@ -471,8 +466,8 @@ body { top: 0 !important; }
         <div class="tool-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg></div>
         <div class="tool-name">WEB SCRAPER</div>
         <div class="tool-job">// job: scrape_get</div>
-        <div class="tool-desc">Extraire le contenu d'une URL et le transformer : résumé, fiche produit, analyse concurrentielle.</div>
-        <span class="tool-arrow">→ OUVRIR</span>
+        <div class="tool-desc" data-i18n="ws_desc">Extraire le contenu d'une URL et le transformer : résumé, fiche produit, analyse concurrentielle.</div>
+        <span class="tool-arrow" data-i18n="open">→ OUVRIR</span>
       </a>
 
       <a href="tool-http-get.html" class="tool-card">
@@ -480,8 +475,8 @@ body { top: 0 !important; }
         <div class="tool-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
         <div class="tool-name">HTTP REQUEST</div>
         <div class="tool-job">// job: http_get</div>
-        <div class="tool-desc">Interroger une API externe ou récupérer des données JSON depuis n'importe quel endpoint HTTP.</div>
-        <span class="tool-arrow">→ OUVRIR</span>
+        <div class="tool-desc" data-i18n="http_desc">Interroger une API externe ou récupérer des données JSON depuis n'importe quel endpoint HTTP.</div>
+        <span class="tool-arrow" data-i18n="open">→ OUVRIR</span>
       </a>
 
       <a href="tool-code-js.html" class="tool-card">
@@ -489,8 +484,8 @@ body { top: 0 !important; }
         <div class="tool-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg></div>
         <div class="tool-name">JS RUNNER</div>
         <div class="tool-job">// job: code_run_js</div>
-        <div class="tool-desc">Exécuter du JavaScript côté serveur : calculs TVA, slugs SEO, validation EAN, extraction données.</div>
-        <span class="tool-arrow">→ OUVRIR</span>
+        <div class="tool-desc" data-i18n="js_desc">Exécuter du JavaScript côté serveur : calculs TVA, slugs SEO, validation EAN, extraction données.</div>
+        <span class="tool-arrow" data-i18n="open">→ OUVRIR</span>
       </a>
 
     </div>
@@ -499,9 +494,9 @@ body { top: 0 !important; }
   <!-- DATA TOOLS -->
   <div class="cat-section">
     <div class="cat-header">
-      <span class="cat-label">// 03 · DATA TOOLS</span>
+      <span class="cat-label" data-i18n="cat3">// 03 · DATA TOOLS</span>
       <div class="cat-line"></div>
-      <span class="cat-count">2 OUTILS</span>
+      <span class="cat-count" data-i18n="outils2">2 OUTILS</span>
     </div>
     <div class="tools-grid">
 
@@ -510,8 +505,8 @@ body { top: 0 !important; }
         <div class="tool-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div>
         <div class="tool-name">CSV STATS</div>
         <div class="tool-job">// job: csv_stats</div>
-        <div class="tool-desc">Analyser un fichier CSV : statistiques descriptives, détection anomalies, tendances, export rapport.</div>
-        <span class="tool-arrow">→ OUVRIR</span>
+        <div class="tool-desc" data-i18n="csv_desc">Analyser un fichier CSV : statistiques descriptives, détection anomalies, tendances, export rapport.</div>
+        <span class="tool-arrow" data-i18n="open">→ OUVRIR</span>
       </a>
 
       <a href="tool-ocr-pdf.html" class="tool-card">
@@ -519,8 +514,8 @@ body { top: 0 !important; }
         <div class="tool-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg></div>
         <div class="tool-name">OCR / PDF</div>
         <div class="tool-job">// job: ocr_pdf</div>
-        <div class="tool-desc">Extraire le texte d'un PDF scanné ou d'une image, puis le reformater, résumer ou analyser.</div>
-        <span class="tool-arrow">→ OUVRIR</span>
+        <div class="tool-desc" data-i18n="ocr_desc">Extraire le texte d'un PDF scanné ou d'une image, puis le reformater, résumer ou analyser.</div>
+        <span class="tool-arrow" data-i18n="open">→ OUVRIR</span>
       </a>
 
     </div>
@@ -529,9 +524,9 @@ body { top: 0 !important; }
   <!-- VISUAL TOOLS -->
   <div class="cat-section">
     <div class="cat-header">
-      <span class="cat-label">// 04 · VISUAL TOOLS</span>
+      <span class="cat-label" data-i18n="cat4">// 04 · VISUAL TOOLS</span>
       <div class="cat-line"></div>
-      <span class="cat-count">2 OUTILS</span>
+      <span class="cat-count" data-i18n="outils2">2 OUTILS</span>
     </div>
     <div class="tools-grid">
 
@@ -540,8 +535,8 @@ body { top: 0 !important; }
         <div class="tool-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
         <div class="tool-name">SVG GENERATOR</div>
         <div class="tool-job">// job: image_svg_generate</div>
-        <div class="tool-desc">Générer des icônes SVG, banners, logos ou infographies à partir d'une description texte.</div>
-        <span class="tool-arrow">→ OUVRIR</span>
+        <div class="tool-desc" data-i18n="svg_desc">Générer des icônes SVG, banners, logos ou infographies à partir d'une description texte.</div>
+        <span class="tool-arrow" data-i18n="open">→ OUVRIR</span>
       </a>
 
       <a href="tool-data-processing.html" class="tool-card">
@@ -549,15 +544,15 @@ body { top: 0 !important; }
         <div class="tool-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg></div>
         <div class="tool-name">DATA PIPELINE</div>
         <div class="tool-job">// job: data_processing</div>
-        <div class="tool-desc">Transformer, nettoyer et restructurer des données JSON, XML ou CSV via des pipelines automatisés.</div>
-        <span class="tool-arrow">→ OUVRIR</span>
+        <div class="tool-desc" data-i18n="dp_desc">Transformer, nettoyer et restructurer des données JSON, XML ou CSV via des pipelines automatisés.</div>
+        <span class="tool-arrow" data-i18n="open">→ OUVRIR</span>
       </a>
 
     </div>
   </div>
 
   <div class="hub-stats">
-    <div class="hub-stat-item"><span class="hub-stat-val">11</span><span class="hub-stat-label">OUTILS ACTIFS</span></div>
+    <div class="hub-stat-item"><span class="hub-stat-val">11</span><span class="hub-stat-label" data-i18n="actifs">OUTILS ACTIFS</span></div>
     <div class="hub-stat-item"><span class="hub-stat-val">9</span><span class="hub-stat-label">JOBS API</span></div>
     <div class="hub-stat-item"><span class="hub-stat-val">4</span><span class="hub-stat-label">CATÉGORIES</span></div>
   </div>
