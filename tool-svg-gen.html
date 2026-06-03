@@ -177,6 +177,8 @@ requestAnimationFrame(draw);
 <footer>SVG GENERATOR · AI TOOLS NETWORK · NODE ACTIF</footer>
 <script>
 const BACKEND = 'https://aiseo-api.duckdns.org';
+const JOBS_API = 'https://api.revolution-network.fr/api/enterprise/v1/jobs';
+const JOBS_KEY = '846775-651589-148056-184221';
 const API_KEY = '846775-651589-148056-184221';
 
 function doCopy(txt,btn){
@@ -207,8 +209,17 @@ async function runSvg(){
   const preview=document.getElementById('svg-preview');
   btn.disabled=true;st.style.display='flex';stxt.textContent='Génération SVG...';rb.classList.remove('show');preview.style.display='none';
   try{
-    const res=await fetch(BACKEND+'/api/job',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':API_KEY},body:JSON.stringify({job:'image_svg_generate',description:inp,svg_type:type,size,style})});
-    const data=await res.json();
+    const res=await fetch(JOBS_API,{method:'POST',headers:{'Content-Type':'application/json','x-api-key':JOBS_KEY},body:JSON.stringify({type:'image_svg_generate',params:{description:inp,svg_type:type,size,style}})});
+    const {id}=await res.json();
+    if(!id) throw new Error('Job non créé');
+    let data={result:null};
+    for(let i=0;i<30;i++){
+      await new Promise(r=>setTimeout(r,1500));
+      const pr=await fetch(JOBS_API+'/'+id+'/result',{headers:{'x-api-key':JOBS_KEY}});
+      const pd=await pr.json();
+      if(pd.status==='completed'){data={result:pd.result?.result??pd.result};break;}
+      if(pd.status==='failed') throw new Error(pd.error||'Job échoué');
+    }
     stxt.textContent='Terminé !';
     const svgCode=data.result||data.svg||data.output||'';
     lastSvg=svgCode;
