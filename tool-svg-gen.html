@@ -75,17 +75,51 @@ let currentLang = localStorage.getItem('aiseo_lang') || 'fr';
 let originalTexts = new Map();
 let isTranslating = false;
 
-async function translateNode(node, targetLang) {
-  const text = (originalTexts.get(node) || node.textContent).trim();
-  if (!text || text.length < 2) return;
-  try {
-    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=fr|${targetLang}`;
-    const r = await fetch(url);
-    const d = await r.json();
-    if (d.responseStatus === 200 && d.responseData && d.responseData.translatedText) {
-      node.textContent = d.responseData.translatedText;
-    }
-  } catch(e) {}
+// LibreTranslate public instances (fallback chain)
+const LT_INSTANCES = [
+  'https://libretranslate.com',
+  'https://translate.terraprint.co',
+  'https://lt.vern.cc',
+  'https://translate.argosopentech.com',
+];
+
+async function libreTranslate(texts, targetLang) {
+  for (const instance of LT_INSTANCES) {
+    try {
+      const res = await fetch(`${instance}/translate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ q: texts, source: 'fr', target: targetLang, format: 'text' }),
+        signal: AbortSignal.timeout(8000)
+      });
+      if (!res.ok) continue;
+      const data = await res.json();
+      // Array response: [{translatedText: '...'}] or [{translatedText: '...'}, ...]
+      if (Array.isArray(data)) return data.map(d => d.translatedText);
+      // Some instances return single object for single string
+      if (data.translatedText) return texts.map(() => data.translatedText);
+    } catch(e) { continue; }
+  }
+  return null;
+}
+
+function getCacheKey(lang) { return `aiseo_trans_${lang}_${location.pathname}`; }
+
+function getTextNodes() {
+  const walker = document.createTreeWalker(
+    document.body, NodeFilter.SHOW_TEXT,
+    { acceptNode: n => {
+        const p = n.parentElement;
+        if (!p) return NodeFilter.FILTER_REJECT;
+        if (['SCRIPT','STYLE','NOSCRIPT','OPTION'].includes(p.tagName)) return NodeFilter.FILTER_REJECT;
+        if (p.closest('[data-notranslate]')) return NodeFilter.FILTER_REJECT;
+        if (n.textContent.trim().length < 2) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+    }}
+  );
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  return nodes;
 }
 
 async function translatePage(targetLang) {
@@ -93,44 +127,49 @@ async function translatePage(targetLang) {
   isTranslating = true;
 
   if (targetLang === 'fr') {
-    originalTexts.forEach((text, el) => { el.textContent = text; });
+    originalTexts.forEach((text, node) => { node.textContent = text; });
     localStorage.setItem('aiseo_lang', 'fr');
     updateFlags('fr');
     isTranslating = false;
     return;
   }
 
-  const walker = document.createTreeWalker(
-    document.body,
-    NodeFilter.SHOW_TEXT,
-    {
-      acceptNode: n => {
-        const p = n.parentElement;
-        if (!p) return NodeFilter.FILTER_REJECT;
-        const tag = p.tagName;
-        if (['SCRIPT','STYLE','NOSCRIPT','OPTION'].includes(tag)) return NodeFilter.FILTER_REJECT;
-        if (p.closest('[data-notranslate]')) return NodeFilter.FILTER_REJECT;
-        if (n.textContent.trim().length < 2) return NodeFilter.FILTER_REJECT;
-        return NodeFilter.FILTER_ACCEPT;
-      }
+  const nodes = getTextNodes();
+
+  // Save originals (only once, from FR source)
+  nodes.forEach(n => { if (!originalTexts.has(n)) originalTexts.set(n, n.textContent); });
+
+  const frTexts = nodes.map(n => originalTexts.get(n));
+
+  // Try cache first
+  try {
+    const cached = JSON.parse(localStorage.getItem(getCacheKey(targetLang)));
+    if (cached && cached.length === frTexts.length) {
+      nodes.forEach((n, i) => { n.textContent = cached[i]; });
+      localStorage.setItem('aiseo_lang', targetLang);
+      updateFlags(targetLang);
+      isTranslating = false;
+      return;
     }
-  );
+  } catch(e) {}
 
-  const nodes = [];
-  while (walker.nextNode()) nodes.push(walker.currentNode);
-
-  // Save originals only once (from FR)
-  nodes.forEach(n => {
-    if (!originalTexts.has(n)) originalTexts.set(n, n.textContent);
-  });
-
-  // Translate by batches of 5 with delay to avoid rate limit
-  const BATCH = 5;
-  for (let i = 0; i < nodes.length; i += BATCH) {
-    const batch = nodes.slice(i, i + BATCH);
-    await Promise.all(batch.map(n => translateNode(n, targetLang)));
-    if (i + BATCH < nodes.length) await new Promise(res => setTimeout(res, 120));
+  // Translate in batches of 50 (LibreTranslate handles arrays)
+  const BATCH = 50;
+  const allTranslated = [];
+  for (let i = 0; i < frTexts.length; i += BATCH) {
+    const batch = frTexts.slice(i, i + BATCH);
+    const results = await libreTranslate(batch, targetLang);
+    if (results) {
+      allTranslated.push(...results);
+      results.forEach((t, j) => { if (nodes[i + j]) nodes[i + j].textContent = t; });
+    } else {
+      // Fallback: keep original texts for this batch
+      batch.forEach((t, j) => { allTranslated.push(t); });
+    }
   }
+
+  // Cache results
+  try { localStorage.setItem(getCacheKey(targetLang), JSON.stringify(allTranslated)); } catch(e) {}
 
   localStorage.setItem('aiseo_lang', targetLang);
   updateFlags(targetLang);
@@ -147,7 +186,7 @@ function updateFlags(lang) {
 }
 
 function switchLang(lang) {
-  if (lang === currentLang) return;
+  if (lang === currentLang || isTranslating) return;
   currentLang = lang;
   translatePage(lang);
 }
