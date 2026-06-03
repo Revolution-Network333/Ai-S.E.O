@@ -168,6 +168,7 @@ requestAnimationFrame(draw);
 </div>
 <footer>CONTENT GEN · AI TOOLS NETWORK · NODE ACTIF</footer>
 <script>
+const BACKEND = 'https://aiseo-api.duckdns.org';
 const API_KEY = '846775-651589-148056-184221';
 
 function doCopy(txt,btn){
@@ -203,7 +204,6 @@ async function runTemplate(){
 
 
 // ── Auth & Payment ──
-const BACKEND = 'https://aiseo-api.duckdns.org';
 let currentUser = null;
 
 async function checkAuth() {
