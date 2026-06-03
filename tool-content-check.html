@@ -67,70 +67,107 @@ footer{position:relative;z-index:10;text-align:center;padding:20px;font-family:'
 
 
 
-<!-- Google Translate + Custom Flag Switcher -->
-<script type="text/javascript">
-function googleTranslateElementInit() {
-  new google.translate.TranslateElement({
-    pageLanguage: 'fr',
-    includedLanguages: 'en,es,de,it,fr',
-    autoDisplay: false
-  }, 'google_translate_element_hidden');
-}
-function switchLang(lang) {
-  // Mémoriser la langue
-  localStorage.setItem('aiseo_lang', lang);
-  // Utiliser le cookie Google Translate
-  document.cookie = 'googtrans=/fr/' + lang + ';path=/;domain=.github.io';
-  document.cookie = 'googtrans=/fr/' + lang + ';path=/';
-  // Trouver le select de Google Translate et changer la valeur
-  const sel = document.querySelector('.goog-te-combo');
-  if (sel) {
-    sel.value = lang;
-    sel.dispatchEvent(new Event('change'));
-  } else {
-    // Si le widget n'est pas encore chargé, attendre
-    setTimeout(() => {
-      const s = document.querySelector('.goog-te-combo');
-      if (s) { s.value = lang; s.dispatchEvent(new Event('change')); }
-    }, 500);
+
+<!-- Lang Switcher -->
+<script>
+const LANGS = { fr:'fr', en:'en', es:'es', de:'de', it:'it' };
+let currentLang = localStorage.getItem('aiseo_lang') || 'fr';
+let originalTexts = new Map();
+
+async function translatePage(targetLang) {
+  if (targetLang === 'fr') {
+    // Restaurer les textes originaux
+    originalTexts.forEach((text, el) => { el.textContent = text; });
+    localStorage.setItem('aiseo_lang', 'fr');
+    updateFlags('fr');
+    return;
   }
-  // Mettre à jour l'affichage des drapeaux
+  // Collecter tous les noeuds texte à traduire
+  const walker = document.createTreeWalker(
+    document.body,
+    NodeFilter.SHOW_TEXT,
+    {
+      acceptNode: n => {
+        const p = n.parentElement;
+        if (!p) return NodeFilter.FILTER_REJECT;
+        const tag = p.tagName;
+        if (['SCRIPT','STYLE','NOSCRIPT','OPTION'].includes(tag)) return NodeFilter.FILTER_REJECT;
+        if (p.closest('#google_translate_element_hidden')) return NodeFilter.FILTER_REJECT;
+        if (n.textContent.trim().length < 2) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    }
+  );
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+
+  // Sauvegarder les originaux (toujours depuis le FR)
+  nodes.forEach(n => {
+    if (!originalTexts.has(n)) originalTexts.set(n, n.textContent);
+  });
+
+  // Traduire par batch de 10 via MyMemory
+  const batches = [];
+  for (let i = 0; i < nodes.length; i += 10) batches.push(nodes.slice(i, i+10));
+
+  for (const batch of batches) {
+    const texts = batch.map(n => originalTexts.get(n) || n.textContent);
+    try {
+      const q = texts.map(t => encodeURIComponent(t)).join('|');
+      const r = await fetch(`https://api.mymemory.translated.net/get?q=${q}&langpair=fr|${targetLang}`);
+      const d = await r.json();
+      if (d.responseStatus === 200) {
+        const translated = d.responseData.translatedText.split('|');
+        batch.forEach((n, i) => {
+          if (translated[i]) n.textContent = translated[i];
+        });
+      }
+    } catch(e) {}
+  }
+  localStorage.setItem('aiseo_lang', targetLang);
+  updateFlags(targetLang);
+}
+
+function updateFlags(lang) {
   document.querySelectorAll('.lang-flag').forEach(f => {
-    f.style.opacity = f.dataset.lang === lang ? '1' : '0.35';
-    f.style.transform = f.dataset.lang === lang ? 'scale(1.2)' : 'scale(1)';
+    const active = f.dataset.lang === lang;
+    f.style.opacity = active ? '1' : '0.35';
+    f.style.transform = active ? 'scale(1.25)' : 'scale(1)';
+    f.style.filter = active ? 'drop-shadow(0 0 4px rgba(0,255,204,0.8))' : 'none';
   });
 }
+
+function switchLang(lang) {
+  currentLang = lang;
+  translatePage(lang);
+}
+
 window.addEventListener('DOMContentLoaded', () => {
-  const saved = localStorage.getItem('aiseo_lang') || 'fr';
-  if (saved !== 'fr') setTimeout(() => switchLang(saved), 1000);
-  document.querySelectorAll('.lang-flag').forEach(f => {
-    f.style.opacity = f.dataset.lang === saved ? '1' : '0.35';
-    f.style.transform = f.dataset.lang === saved ? 'scale(1.2)' : 'scale(1)';
-  });
+  updateFlags(currentLang);
+  if (currentLang !== 'fr') translatePage(currentLang);
 });
 </script>
-<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 <style>
-.lang-switcher {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  margin-left: 8px;
+.lang-switcher, .lang-switcher-nav {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  margin-left: 10px !important;
 }
 .lang-flag {
-  font-size: 18px;
-  cursor: pointer;
-  opacity: 0.35;
-  transition: opacity 0.2s, transform 0.2s;
-  line-height: 1;
-  user-select: none;
+  font-size: 20px !important;
+  cursor: pointer !important;
+  opacity: 0.35 !important;
+  transition: opacity 0.2s, transform 0.2s, filter 0.2s !important;
+  line-height: 1 !important;
+  user-select: none !important;
 }
-.lang-flag:hover { opacity: 0.8 !important; }
-#google_translate_element_hidden { display: none !important; }
-.goog-te-banner-frame { display: none !important; }
-.goog-te-menu-frame { margin-top: 0 !important; }
-body { top: 0 !important; }
+.lang-flag:hover { opacity: 0.75 !important; }
+#google_translate_element_hidden,
+.goog-te-banner-frame,
+.goog-te-gadget,
 iframe.skiptranslate { display: none !important; }
+body { top: 0 !important; }
 </style>
 
 </head>
@@ -164,7 +201,6 @@ requestAnimationFrame(draw);
   <span class="nav-job">// content_check</span>
   <a href="hub.html" class="nav-back">← RETOUR HUB</a>
   
-  <div id="google_translate_element_hidden"></div>
   <div class="lang-switcher">
     <span class="lang-flag" data-lang="fr" onclick="switchLang('fr')" title="Français">🇫🇷</span>
     <span class="lang-flag" data-lang="en" onclick="switchLang('en')" title="English">🇬🇧</span>
