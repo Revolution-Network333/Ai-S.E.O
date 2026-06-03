@@ -294,30 +294,101 @@ function doCopy(txt,btn){
 
 function setPA(v){document.getElementById('post-action').value=v;}
 function setUrl(v){document.getElementById('url-inp').value=v;}
+// Map post-action to backend type
+const PA_TO_TYPE = {
+  'résumer':                   'seo',
+  'fiche produit':             'product',
+  'analyse concurrentielle':   'seo',
+  'extraire les prix':         'seo',
+  'extraire les données clés': 'seo',
+  'aucune':                    'seo'
+};
+
+// Scrape page content via CORS proxy, then send to /api/generate
+async function scrapeContent(url) {
+  // Try direct first
+  try {
+    const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
+    const text = await res.text();
+    if (text && text.length > 100) return text;
+  } catch(e) {}
+  // Fallback: CORS proxy
+  const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
+  const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(15000) });
+  if (!res.ok) throw new Error('Cannot fetch URL (HTTP ' + res.status + ')');
+  const d = await res.json();
+  return d.contents || '';
+}
+
+// Strip HTML tags, keep meaningful text
+function stripHtml(html) {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s{2,}/g, ' ')
+    .trim()
+    .substring(0, 4000); // keep within token limits
+}
+
 async function runScrape(){
   const url=document.getElementById('url-inp').value.trim();
-  if(!url||!url.startsWith('http')){alert('Entrez une URL valide.');return;}
+  if(!url||!url.startsWith('http')){alert('Enter a valid URL.');return;}
   const pa=document.getElementById('post-action').value;
   const lang=document.getElementById('lang').value;
   const btn=document.getElementById('run-btn'),st=document.getElementById('status'),stxt=document.getElementById('stxt');
   const rb=document.getElementById('result-box'),rc=document.getElementById('result-content');
-  btn.disabled=true;st.style.display='flex';stxt.textContent='Scraping en cours...';rb.classList.remove('show');
+  btn.disabled=true;st.style.display='flex';stxt.textContent='Fetching page...';rb.classList.remove('show');
   try{
-    const res=await fetch(BACKEND+'/api/job',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'scrape_get',params:{url,post_action:pa,language:lang}})});
-    const {id}=await res.json();
-    if(!id) throw new Error('Job non créé');
-    let data={result:null};
-    for(let i=0;i<30;i++){
-      await new Promise(r=>setTimeout(r,1500));
-      const pr=await fetch(BACKEND+'/api/job/'+id+'/result',{});
-      const pd=await pr.json();
-      if(pd.status==='completed'){data={result:pd.result?.result??pd.result};break;}
-      if(pd.status==='failed') throw new Error(pd.error||'Job échoué');
+    if(!currentUser) throw new Error('Please log in to use this tool.');
+
+    // Step 1: scrape the page
+    stxt.textContent='Scraping page...';
+    const rawHtml = await scrapeContent(url);
+    const pageText = stripHtml(rawHtml);
+    if (!pageText || pageText.length < 50) throw new Error('Could not extract content from this URL.');
+
+    // Step 2: build prompt with context
+    const actionLabel = document.getElementById('post-action').options[document.getElementById('post-action').selectedIndex].text;
+    const prompt = `URL: ${url}
+
+Page content:
+${pageText}
+
+Task: ${actionLabel}`;
+    const type = PA_TO_TYPE[pa] || 'seo';
+    const langMap = {'français':'fr','anglais':'en','espagnol':'es','allemand':'de','italien':'it'};
+    const langCode = langMap[lang] || 'fr';
+
+    // Step 3: send to /api/generate
+    stxt.textContent='Analyzing with AI...';
+    const res = await fetch(BACKEND+'/api/generate', {
+      method:'POST',
+      credentials:'include',
+      headers:{'Content-Type':'application/json','x-user-id':currentUser.id},
+      body:JSON.stringify({input:prompt, types:[type], language:langCode})
+    });
+
+    if(res.status===401){window.location.href=BACKEND+'/auth/google';return;}
+    if(res.status===429){
+      const d=await res.json().catch(()=>({}));
+      throw new Error('Generation limit reached — '+(d.message||'upgrade to Pro for unlimited access'));
     }
-    stxt.textContent='Terminé !';
-    rc.textContent=data.result||data.output||data.content||JSON.stringify(data,null,2);
+    if(!res.ok){
+      const t=await res.text().catch(()=>'');
+      throw new Error('Server error HTTP '+res.status+(t?' : '+t.substring(0,150):''));
+    }
+
+    const d = await res.json();
+    const result = d.results?.[type] || d.result || d.output || d.content || JSON.stringify(d,null,2);
+    stxt.textContent='Done!';
+    rc.textContent = result;
     rb.classList.add('show');
-  }catch(e){stxt.textContent='Erreur réseau';rc.innerHTML='<span class="err-msg">'+e.message+'</span>';rb.classList.add('show');}
+  }catch(e){
+    stxt.textContent='Error';
+    rc.innerHTML='<span class="err-msg">'+e.message+'</span>';
+    rb.classList.add('show');
+  }
   btn.disabled=false;
 }
 
