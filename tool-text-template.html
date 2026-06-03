@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CONTENT GEN — AI TOOLS</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--cyan:#00ffcc;--cyan2:#00e5b0;--cyan-dim:rgba(0,255,204,0.12);--cyan-glow:rgba(0,255,204,0.35);--bg:#060a0d;--bg2:#0b1118;--bg3:#101820;--border:rgba(0,255,204,0.12);--border2:rgba(0,255,204,0.25);--text:#c8e8e0;--text2:#5a8a7a;--text3:#2a4a40;--red:#ff4466;--amber:#ffaa00;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Rajdhani',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.12) 2px,rgba(0,0,0,0.12) 4px);pointer-events:none;z-index:9999;}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,204,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,204,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+#bg-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:1;opacity:.45;pointer-events:none;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 36px;background:rgba(6,10,13,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:'Orbitron',monospace;font-size:15px;font-weight:900;color:var(--cyan);letter-spacing:4px;text-shadow:0 0 15px var(--cyan-glow);text-decoration:none;}
+.nav-back{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--text2);text-decoration:none;transition:color .2s;}
+.nav-back:hover{color:var(--cyan);}
+.nav-job{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--text3);}
+.main{position:relative;z-index:10;max-width:860px;margin:0 auto;padding:100px 24px 80px;}
+.page-header{margin-bottom:32px;}
+.page-tag{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--text3);margin-bottom:8px;}
+.page-title{font-family:'Orbitron',monospace;font-size:clamp(22px,4vw,36px);font-weight:900;letter-spacing:4px;color:var(--cyan);text-shadow:0 0 20px var(--cyan-glow);margin-bottom:8px;}
+.page-desc{font-size:15px;color:var(--text2);letter-spacing:.4px;line-height:1.55;}
+.panel{background:var(--bg2);border:1px solid var(--border);position:relative;margin-bottom:14px;overflow:hidden;}
+.panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:.5;}
+.panel-header{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan);letter-spacing:2px;text-transform:uppercase;}
+.panel-header::before{content:'▶';font-size:8px;color:var(--cyan);}
+.panel-body{padding:16px;}
+textarea,input[type=text],input[type=url]{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;padding:12px 14px;outline:none;transition:border-color .2s,box-shadow .2s;letter-spacing:.4px;}
+textarea{resize:vertical;min-height:110px;}
+textarea::placeholder,input::placeholder{color:var(--text3);}
+textarea:focus,input:focus{border-color:var(--border2);box-shadow:0 0 0 1px var(--border2) inset,0 0 20px rgba(0,255,204,0.05);}
+select{background:var(--bg3);border:1px solid var(--border);color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:11px;padding:8px 32px 8px 12px;outline:none;cursor:pointer;letter-spacing:1px;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2300ffcc'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;align-items:center;}
+.lbl{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text2);letter-spacing:2px;white-space:nowrap;}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.tag{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;padding:5px 12px;border:1px solid var(--border);color:var(--text2);cursor:pointer;transition:all .2s;}
+.tag:hover,.tag.active{border-color:var(--cyan);color:var(--cyan);background:rgba(0,255,204,.05);}
+.btn-run{display:inline-flex;align-items:center;gap:10px;background:transparent;border:1px solid var(--cyan2);color:var(--cyan);font-family:'Orbitron',monospace;font-size:11px;font-weight:700;letter-spacing:4px;padding:14px 32px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;margin-top:10px;}
+.btn-run::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(0,255,204,.1),transparent);transform:translateX(-100%);transition:transform .4s;}
+.btn-run:hover::before{transform:translateX(100%);}
+.btn-run:hover{box-shadow:0 0 24px rgba(0,255,204,.2);}
+.btn-run:disabled{opacity:.5;cursor:not-allowed;}
+.status-line{display:none;align-items:center;gap:10px;margin-top:12px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text2);letter-spacing:2px;}
+.status-line .dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan);animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+.result-box{background:var(--bg3);border:1px solid var(--border);padding:16px;margin-top:14px;position:relative;min-height:80px;display:none;}
+.result-box.show{display:block;}
+.result-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.result-label{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan);letter-spacing:2px;}
+.copy-btn{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;background:none;border:1px solid var(--border);color:var(--text2);padding:4px 10px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px;}
+.copy-btn:hover{border-color:var(--border2);color:var(--cyan);}
+.copy-btn svg{width:12px;height:12px;}
+.result-content{font-family:'Rajdhani',sans-serif;font-size:14px;color:var(--text);line-height:1.65;white-space:pre-wrap;word-break:break-word;}
+.err-msg{color:var(--red);font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:1px;}
+.dots-anim{display:inline-flex;gap:4px;}
+.dots-anim span{width:6px;height:6px;border-radius:50%;background:var(--cyan);animation:dotpulse 1.2s ease-in-out infinite;}
+.dots-anim span:nth-child(2){animation-delay:.2s;}
+.dots-anim span:nth-child(3){animation-delay:.4s;}
+@keyframes dotpulse{0%,80%,100%{transform:scale(0.6);opacity:.4;}40%{transform:scale(1);opacity:1;}}
+footer{position:relative;z-index:10;text-align:center;padding:20px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:2px;border-top:1px solid var(--border);}
+
+.modal-overlay.active { display:flex !important; }
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+<script>
+(function(){
+const canvas=document.getElementById('bg-canvas');
+const ctx=canvas.getContext('2d');
+function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+resize();window.addEventListener('resize',resize);
+const nodes=[];const NUM=50;
+for(let i=0;i<NUM;i++){nodes.push({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,r:Math.random()*2+1,pulse:Math.random()*Math.PI*2,active:Math.random()>.6});}
+const packets=[];let lastPkt=0;
+function draw(ts){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;n.pulse+=.04;if(n.x<0||n.x>canvas.width)n.vx*=-1;if(n.y<0||n.y>canvas.height)n.vy*=-1;});
+  for(let i=0;i<nodes.length;i++){for(let j=i+1;j<nodes.length;j++){const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<150){const a=(1-d/150)*.22;ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.strokeStyle='rgba(0,255,204,'+a+')';ctx.lineWidth=.5;ctx.stroke();}}}
+  if(ts-lastPkt>700){const i=Math.floor(Math.random()*nodes.length),j=Math.floor(Math.random()*nodes.length);if(i!==j)packets.push({from:i,to:j,t:0,speed:.012+Math.random()*.01});lastPkt=ts;}
+  for(let k=packets.length-1;k>=0;k--){const p=packets[k];p.t+=p.speed;if(p.t>=1){packets.splice(k,1);continue;}const px=nodes[p.from].x+(nodes[p.to].x-nodes[p.from].x)*p.t,py=nodes[p.from].y+(nodes[p.to].y-nodes[p.from].y)*p.t;ctx.beginPath();ctx.arc(px,py,2.5,0,Math.PI*2);ctx.fillStyle='rgba(0,255,204,0.9)';ctx.shadowBlur=8;ctx.shadowColor='#00ffcc';ctx.fill();ctx.shadowBlur=0;}
+  nodes.forEach(n=>{const pulse=.5+.5*Math.sin(n.pulse);ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fillStyle=n.active?'rgba(0,255,204,'+((.6+pulse*.4))+')'  :'rgba(0,255,204,'+((.15+pulse*.1))+')';if(n.active){ctx.shadowBlur=8;ctx.shadowColor='#00ffcc';}ctx.fill();ctx.shadowBlur=0;if(n.active&&pulse>.8){ctx.beginPath();ctx.arc(n.x,n.y,n.r*3*pulse,0,Math.PI*2);ctx.strokeStyle='rgba(0,255,204,'+((1-pulse)*.3)+')';ctx.lineWidth=.5;ctx.stroke();}});
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+})();
+</script>
+
+<nav>
+  <a href="hub.html" class="nav-logo">AI TOOLS</a>
+  <span class="nav-job">// text_generate_template</span>
+  <a href="hub.html" class="nav-back">← RETOUR HUB</a>
+</nav>
+
+  <!-- Auth bar -->
+  <div id="auth-bar" style="display:flex;align-items:center;gap:12px;justify-content:center;flex-wrap:wrap;margin:12px 0 4px;">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text2);letter-spacing:2px;">[ CHECKING AUTH... ]</div>
+  </div>
+  <!-- Usage bar -->
+  <div id="usage-bar" style="display:none;text-align:center;margin-bottom:6px;">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text2);letter-spacing:2px;" id="usage-text"></div>
+    <div style="width:200px;height:3px;background:var(--bg3);border-radius:2px;margin:6px auto 0;overflow:hidden;">
+      <div id="usage-fill" style="height:100%;background:var(--cyan);transition:width 0.5s ease;width:0%;"></div>
+    </div>
+  </div>
+
+<div class="main">
+  <div class="page-header">
+    <div class="page-tag">// JOB API · text_generate_template</div>
+    <h1 class="page-title">CONTENT GEN</h1>
+    <p class="page-desc">Générez automatiquement fiches produit, posts réseaux sociaux, articles SEO, emails et metas.</p>
+  </div>
+  
+<div class="panel">
+  <div class="panel-header">INPUT · DESCRIPTION PRODUIT / SUJET</div>
+  <div class="panel-body">
+    <textarea id="inp" placeholder="Décrivez votre produit, service ou sujet..." rows="5"></textarea>
+    <div class="row">
+      <span class="lbl">TEMPLATE :</span>
+      <select id="tpl">
+        <option value="fiche_produit">Fiche Produit</option>
+        <option value="post_instagram">Post Instagram</option>
+        <option value="post_linkedin">Post LinkedIn</option>
+        <option value="article_seo">Article SEO</option>
+        <option value="email_marketing">Email Marketing</option>
+        <option value="meta_description">Méta-description</option>
+        <option value="tweet">Tweet/X</option>
+        <option value="post_facebook">Post Facebook</option>
+      </select>
+      <span class="lbl">LANGUE :</span>
+      <select id="lang">
+        <option value="français">FR</option>
+        <option value="anglais">EN</option>
+        <option value="espagnol">ES</option>
+        <option value="allemand">DE</option>
+        <option value="italien">IT</option>
+      </select>
+    </div>
+    <div class="tags">
+      <span class="tag" onclick="setTpl('fiche_produit')">FICHE</span>
+      <span class="tag" onclick="setTpl('post_instagram')">INSTAGRAM</span>
+      <span class="tag" onclick="setTpl('post_linkedin')">LINKEDIN</span>
+      <span class="tag" onclick="setTpl('article_seo')">SEO</span>
+      <span class="tag" onclick="setTpl('email_marketing')">EMAIL</span>
+      <span class="tag" onclick="setTpl('meta_description')">META</span>
+    </div>
+  </div>
+</div>
+<button class="btn-run" id="run-btn" onclick="runTemplate()">
+  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+  GÉNÉRER
+</button>
+<div class="status-line" id="status"><div class="dot"></div><span id="stxt">Génération...</span></div>
+<div class="result-box" id="result-box">
+  <div class="result-head">
+    <span class="result-label" id="result-label">// CONTENU GÉNÉRÉ</span>
+    <button class="copy-btn" onclick="doCopy(document.getElementById('result-content').textContent,this)">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+      COPIER
+    </button>
+  </div>
+  <div class="result-content" id="result-content"></div>
+</div>
+
+</div>
+<footer>CONTENT GEN · AI TOOLS NETWORK · NODE ACTIF</footer>
+<script>
+const API_KEY = '846775-651589-148056-184221';
+
+function doCopy(txt,btn){
+  navigator.clipboard.writeText(txt).then(()=>{
+    const orig=btn.innerHTML;
+    btn.innerHTML='<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" width="12" height="12"><polyline points="20 6 9 17 4 12"/></svg> COPIED';
+    btn.style.color='var(--cyan)';
+    setTimeout(()=>{btn.innerHTML=orig;btn.style.color='';},2000);
+  });
+}
+
+
+function setTpl(val){document.getElementById('tpl').value=val;}
+async function runTemplate(){
+  const inp=document.getElementById('inp').value.trim();
+  if(!inp){alert('Décrivez le sujet.');return;}
+  const tpl=document.getElementById('tpl').value;
+  const lang=document.getElementById('lang').value;
+  const btn=document.getElementById('run-btn'),st=document.getElementById('status'),stxt=document.getElementById('stxt');
+  const rb=document.getElementById('result-box'),rc=document.getElementById('result-content');
+  btn.disabled=true;st.style.display='flex';stxt.textContent='Génération en cours...';rb.classList.remove('show');
+  try{
+    const res=await fetch(BACKEND+'/api/job',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':API_KEY},body:JSON.stringify({job:'text_generate_template',input:inp,template:tpl,language:lang})});
+    const data=await res.json();
+    stxt.textContent='Terminé !';
+    document.getElementById('result-label').textContent='// '+tpl.replace(/_/g,' ').toUpperCase();
+    rc.textContent=data.result||data.output||JSON.stringify(data,null,2);
+    rb.classList.add('show');
+  }catch(e){stxt.textContent='Erreur réseau';rc.innerHTML='<span class="err-msg">'+e.message+'</span>';rb.classList.add('show');}
+  btn.disabled=false;
+}
+
+
+
+// ── Auth & Payment ──
+const BACKEND = 'https://aiseo-api.duckdns.org';
+let currentUser = null;
+
+async function checkAuth() {
+  const params = new URLSearchParams(window.location.search);
+  const authParam = params.get('auth');
+  if (authParam) {
+    try {
+      const user = JSON.parse(decodeURIComponent(authParam));
+      localStorage.setItem('aiseo_user', JSON.stringify(user));
+      currentUser = user;
+      history.replaceState({}, '', window.location.pathname);
+    } catch(e) {}
+  }
+  if (!currentUser) {
+    const stored = localStorage.getItem('aiseo_user');
+    if (stored) { try { currentUser = JSON.parse(stored); } catch(e) {} }
+  }
+  if (currentUser) {
+    try {
+      const r = await fetch(BACKEND + '/auth/me', { credentials: 'include' });
+      const d = await r.json();
+      if (d.authenticated) { currentUser = d.user; localStorage.setItem('aiseo_user', JSON.stringify(d.user)); }
+    } catch(e) {}
+  }
+  renderAuthBar();
+  if (currentUser) loadUsage();
+}
+
+function renderAuthBar() {
+  const bar = document.getElementById('auth-bar');
+  if (!bar) return;
+  if (!currentUser) {
+    bar.innerHTML = '<a href="'+BACKEND+'/auth/google" style="display:inline-flex;align-items:center;gap:8px;font-family:\'Share Tech Mono\',monospace;font-size:11px;letter-spacing:2px;color:var(--bg);background:var(--cyan);border:none;padding:8px 18px;cursor:pointer;text-decoration:none;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:opacity 0.2s;font-weight:700;" onmouseover="this.style.opacity=\'.8\'" onmouseout="this.style.opacity=\'1\'"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>CONNEXION GOOGLE</a>';
+  } else {
+    const isPro = currentUser.plan === 'pro' && currentUser.subscription_status === 'active';
+    bar.innerHTML = '<img src="'+currentUser.avatar+'" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--cyan);opacity:0.9;" onerror="this.style.display=\'none\'"/><span style="font-family:\'Share Tech Mono\',monospace;font-size:10px;color:var(--text2);letter-spacing:1px;">'+currentUser.name+'</span><span style="font-family:\'Share Tech Mono\',monospace;font-size:9px;letter-spacing:2px;padding:3px 8px;border:1px solid '+(isPro?'var(--cyan)':'var(--text3)')+';color:'+(isPro?'var(--cyan)':'var(--text2)')+';">'+(isPro?'★ PRO':'FREE')+'</span>'+(isPro?'<button onclick="openModal()" style="font-family:\'Share Tech Mono\',monospace;font-size:9px;letter-spacing:1px;background:none;border:1px solid var(--text3);color:var(--text2);padding:3px 10px;cursor:pointer;">ABONNEMENT</button>':'<button onclick="openModal()" style="font-family:\'Share Tech Mono\',monospace;font-size:9px;letter-spacing:2px;background:var(--cyan);color:var(--bg);border:none;padding:4px 12px;cursor:pointer;font-weight:700;">↑ PRO 2.25€/MOIS</button>')+'<a href="#" onclick="localStorage.removeItem(\'aiseo_user\');window.location.href=BACKEND+\'/auth/logout\'" style="font-family:\'Share Tech Mono\',monospace;font-size:9px;color:var(--text3);letter-spacing:1px;text-decoration:none;opacity:0.7;" onmouseover="this.style.opacity=\'1\'" onmouseout="this.style.opacity=\'.7\'">DÉCO</a>';
+  }
+}
+
+async function loadUsage() {
+  if (!currentUser) return;
+  try {
+    const r = await fetch(BACKEND + '/api/usage', { credentials: 'include', headers: { 'x-user-id': currentUser.id } });
+    const d = await r.json();
+    const usageBar = document.getElementById('usage-bar');
+    const usageText = document.getElementById('usage-text');
+    const usageFill = document.getElementById('usage-fill');
+    if (!usageBar) return;
+    usageBar.style.display = 'block';
+    if (d.plan === 'pro') {
+      usageText.textContent = '[ PRO · GÉNÉRATIONS ILLIMITÉES ]';
+      usageFill.style.width = '100%';
+      usageFill.style.background = 'var(--cyan)';
+    } else {
+      const pct = Math.min(100, (d.usage / d.limit) * 100);
+      usageText.textContent = '[ FREE · ' + d.usage + '/' + d.limit + ' GÉNÉRATIONS CETTE SEMAINE ]';
+      usageFill.style.width = pct + '%';
+      if (pct >= 80) usageFill.style.background = 'var(--red)';
+      else if (pct >= 50) usageFill.style.background = 'var(--amber)';
+    }
+  } catch(e) {}
+}
+
+async function upgradeToPro() {
+  const user = currentUser || JSON.parse(localStorage.getItem('aiseo_user') || 'null');
+  if (!user) { window.location.href = BACKEND + '/auth/google'; return; }
+  try {
+    const r = await fetch(BACKEND + '/stripe/create-checkout', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json', 'x-user-id': user.id } });
+    const d = await r.json();
+    if (d.url) window.location.href = d.url;
+    else alert('Erreur: ' + (d.error || 'réponse invalide'));
+  } catch(e) { alert('Erreur — réessaie dans quelques secondes.'); }
+}
+
+async function openPortal() {
+  const user = currentUser || JSON.parse(localStorage.getItem('aiseo_user') || 'null');
+  if (!user) return;
+  try {
+    const r = await fetch(BACKEND + '/stripe/portal', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json', 'x-user-id': user.id } });
+    const d = await r.json();
+    if (d.url) window.location.href = d.url;
+  } catch(e) { alert('Erreur portail.'); }
+}
+
+function openModal() {
+  const modal = document.getElementById('sub-modal');
+  if (!modal) return;
+  modal.classList.add('active');
+  const portalSection = document.getElementById('portal-section');
+  if (currentUser && currentUser.plan === 'pro' && currentUser.subscription_status === 'active') {
+    if (portalSection) portalSection.style.display = 'flex';
+    const proBtn = modal.querySelector('.pro-btn');
+    if (proBtn) { proBtn.textContent = '★ PLAN ACTUEL'; proBtn.onclick = null; proBtn.style.cursor = 'default'; }
+  }
+}
+
+function closeModal() {
+  const modal = document.getElementById('sub-modal');
+  if (modal) modal.classList.remove('active');
+}
+
+checkAuth();
+
+
+</script>
+<!-- SUBSCRIPTION MODAL -->
+<div class="modal-overlay" id="sub-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;align-items:center;justify-content:center;backdrop-filter:blur(4px);">
+  <div style="background:var(--bg2);border:1px solid rgba(0,255,204,0.22);max-width:480px;width:90%;position:relative;animation:slideIn .25s ease;">
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),#7c3aed,var(--cyan),transparent);"></div>
+    <div style="padding:24px 24px 16px;border-bottom:1px solid rgba(0,255,204,0.12);display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-family:'Orbitron',monospace;font-size:14px;letter-spacing:3px;color:var(--cyan);font-weight:700;">⚡ ABONNEMENT</div>
+      <button onclick="closeModal()" style="background:none;border:none;color:var(--text2);font-size:18px;cursor:pointer;padding:4px 8px;">✕</button>
+    </div>
+    <div style="padding:24px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
+        <div style="background:var(--bg3);border:1px solid rgba(0,255,204,0.12);padding:20px 16px;text-align:center;position:relative;">
+          <div style="font-family:'Orbitron',monospace;font-size:11px;letter-spacing:3px;color:var(--text2);margin-bottom:12px;margin-top:8px;">FREE</div>
+          <div style="font-family:'Orbitron',monospace;font-size:24px;font-weight:900;color:var(--text);line-height:1;">0€</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:1px;margin-bottom:14px;">pour toujours</div>
+          <ul style="list-style:none;text-align:left;margin-bottom:16px;">
+            <li style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text2);letter-spacing:1px;padding:4px 0;display:flex;align-items:center;gap:6px;"><span style="color:var(--cyan);font-size:12px;">›</span>20 générations/semaine</li>
+            <li style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text2);letter-spacing:1px;padding:4px 0;display:flex;align-items:center;gap:6px;"><span style="color:var(--cyan);font-size:12px;">›</span>10 outils IA</li>
+            <li style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text2);letter-spacing:1px;padding:4px 0;display:flex;align-items:center;gap:6px;"><span style="color:var(--cyan);font-size:12px;">›</span>8 langues</li>
+          </ul>
+          <button onclick="closeModal()" style="width:100%;padding:10px;font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;transition:all .2s;border:1px solid rgba(0,255,204,0.22);background:transparent;color:var(--text2);">PLAN ACTUEL</button>
+        </div>
+        <div style="background:rgba(0,255,204,0.04);border:1px solid rgba(0,255,204,0.4);padding:20px 16px;text-align:center;position:relative;">
+          <div style="position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:var(--cyan);color:var(--bg);font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;padding:3px 10px;font-weight:700;">RECOMMANDÉ</div>
+          <div style="font-family:'Orbitron',monospace;font-size:11px;letter-spacing:3px;color:var(--cyan);margin-bottom:12px;margin-top:8px;">PRO</div>
+          <div style="font-family:'Orbitron',monospace;font-size:24px;font-weight:900;color:var(--cyan);text-shadow:0 0 20px rgba(0,255,204,0.4);line-height:1;">2.25€</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:1px;margin-bottom:14px;">/mois · sans engagement</div>
+          <ul style="list-style:none;text-align:left;margin-bottom:16px;">
+            <li style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text2);letter-spacing:1px;padding:4px 0;display:flex;align-items:center;gap:6px;"><span style="color:var(--cyan);font-size:12px;">›</span>Générations illimitées</li>
+            <li style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text2);letter-spacing:1px;padding:4px 0;display:flex;align-items:center;gap:6px;"><span style="color:var(--cyan);font-size:12px;">›</span>10 outils IA</li>
+            <li style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text2);letter-spacing:1px;padding:4px 0;display:flex;align-items:center;gap:6px;"><span style="color:var(--cyan);font-size:12px;">›</span>14 langues</li>
+            <li style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text2);letter-spacing:1px;padding:4px 0;display:flex;align-items:center;gap:6px;"><span style="color:var(--cyan);font-size:12px;">›</span>Support prioritaire</li>
+          </ul>
+          <button class="pro-btn" onclick="upgradeToPro()" style="width:100%;padding:10px;font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;transition:all .2s;background:var(--cyan);color:var(--bg);border:1px solid var(--cyan);font-weight:700;">↑ PASSER AU PRO</button>
+        </div>
+      </div>
+    </div>
+    <div id="portal-section" style="display:none;border-top:1px solid rgba(0,255,204,0.12);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text2);letter-spacing:1px;">Gérer votre abonnement Pro</span>
+      <button onclick="openPortal()" style="background:none;border:1px solid rgba(0,255,204,0.12);color:var(--text2);font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px;padding:6px 14px;cursor:pointer;">PORTAIL STRIPE →</button>
+    </div>
+    <div style="padding:0 24px 20px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:1px;">🔒 Paiement sécurisé · Annulation à tout moment</div>
+  </div>
+</div>
+
+</body>
+</html>
