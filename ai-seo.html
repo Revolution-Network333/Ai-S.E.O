@@ -1109,6 +1109,8 @@ function renderAuthBar() {
       </a>`;
   } else {
     const isPro = currentUser.plan === 'pro' && currentUser.subscription_status === 'active';
+    const isElite = currentUser.plan === 'elite' && currentUser.subscription_status === 'active';
+    const isAnyPaid = isPro || isElite;
     bar.innerHTML = `
       <img src="${currentUser.avatar}" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--cyan);opacity:0.9;" onerror="this.style.display='none'" />
       <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text2);letter-spacing:1px;">${currentUser.name}</span>
@@ -1133,7 +1135,10 @@ async function loadUsage() {
     const usageText = document.getElementById('usage-text');
     const usageFill = document.getElementById('usage-fill');
     usageBar.style.display = 'block';
-    if (d.plan === 'pro') {
+    if (d.plan === 'elite') {
+      usageText.textContent = '[ ⚡ ELITE · IA SUPÉRIEURE · ILLIMITÉ ]';
+      usageText.style.color = '#a855f7';
+    } else if (d.plan === 'pro') {
       usageText.textContent = '[ PRO · GÉNÉRATIONS ILLIMITÉES ]';
       usageFill.style.width = '100%';
       usageFill.style.background = 'var(--cyan)';
@@ -1145,6 +1150,17 @@ async function loadUsage() {
       else if (pct >= 50) usageFill.style.background = 'var(--amber)';
     }
   } catch(e) {}
+}
+
+async function upgradeToElite() {
+  const user = currentUser || JSON.parse(localStorage.getItem('aiseo_user') || 'null');
+  if (!user) { window.location.href = BACKEND + '/auth/google'; return; }
+  try {
+    const r = await fetch(BACKEND + '/stripe/create-checkout', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json', 'x-user-id': user.id }, body: JSON.stringify({ plan: 'elite' }) });
+    const d = await r.json();
+    if (d.url) window.location.href = d.url;
+    else alert('Erreur: ' + (d.error || 'réponse invalide'));
+  } catch(e) { alert('Erreur — réessaie dans quelques secondes.'); }
 }
 
 async function upgradeToPro() {
