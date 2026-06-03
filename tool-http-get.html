@@ -331,6 +331,15 @@ async function fetchViaProxy(url) {
 
 function formatResult(r) {
   const header = `// HTTP ${r.status} ${r.statusText}  [${r.source === 'proxy' ? 'via proxy CORS' : 'direct'}]\n// Content-Type: ${r.contentType || 'unknown'}\n\n`;
+  const isHtml = r.contentType.includes('text/html') || (typeof r.body === 'string' && r.body.trimStart().startsWith('<'));
+  if (isHtml) {
+    return header +
+      `⚠ REPONSE HTML DETECTEE\n` +
+      `Cette URL retourne une page web, pas une API JSON.\n` +
+      `→ Utilisez une URL d'API REST (ex: /api/..., ?format=json)\n\n` +
+      `// APERCU (100 premiers caracteres) :\n` +
+      String(r.body).substring(0, 100).replace(/\s+/g, ' ') + '...';
+  }
   const body = typeof r.body === 'string' ? r.body : JSON.stringify(r.body, null, 2);
   return header + body;
 }
