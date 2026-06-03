@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI TOOLS HUB — Intelligence Network</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cyan: #00ffcc;
+  --cyan2: #00e5b0;
+  --cyan-dim: rgba(0,255,204,0.12);
+  --cyan-glow: rgba(0,255,204,0.35);
+  --purple: #7c3aed;
+  --purple-bright: #9d5ffc;
+  --purple-dim: rgba(124,58,237,0.15);
+  --bg: #060a0d;
+  --bg2: #0b1118;
+  --bg3: #101820;
+  --border: rgba(0,255,204,0.12);
+  --border2: rgba(0,255,204,0.25);
+  --text: #c8e8e0;
+  --text2: #5a8a7a;
+  --text3: #2a4a40;
+  --red: #ff4466;
+  --amber: #ffaa00;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body {
+  font-family:'Rajdhani',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+/* Scanlines */
+body::before {
+  content:'';
+  position:fixed;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.12) 2px,rgba(0,0,0,0.12) 4px);
+  pointer-events:none;z-index:9999;
+}
+/* Grid bg */
+body::after {
+  content:'';
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(0,255,204,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,255,204,0.03) 1px,transparent 1px);
+  background-size:40px 40px;
+  pointer-events:none;z-index:0;
+}
+/* Canvas background */
+#bg-canvas {
+  position:fixed;inset:0;width:100%;height:100%;
+  z-index:1;opacity:0.5;
+  pointer-events:none;
+}
+/* NAV */
+nav {
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 40px;
+  background:rgba(6,10,13,0.9);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo {
+  font-family:'Orbitron',monospace;
+  font-size:16px;font-weight:900;
+  color:var(--cyan);letter-spacing:4px;
+  text-shadow:0 0 15px var(--cyan-glow);
+  text-decoration:none;
+}
+.nav-tag {
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;letter-spacing:2px;color:var(--text2);
+}
+.nav-status {
+  display:flex;align-items:center;gap:8px;
+  font-family:'Share Tech Mono',monospace;font-size:10px;
+  color:var(--text2);letter-spacing:2px;
+}
+.nav-dot {width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan);animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+/* HERO */
+.hero {
+  position:relative;z-index:10;
+  padding:140px 20px 60px;
+  text-align:center;
+}
+.hero-tag {
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;
+  color:var(--text2);border:1px solid var(--border);padding:6px 16px;
+  margin-bottom:28px;
+}
+.hero-title {
+  font-family:'Orbitron',monospace;
+  font-size:clamp(32px,6vw,64px);font-weight:900;
+  letter-spacing:6px;line-height:1.05;
+  color:var(--cyan);
+  text-shadow:0 0 30px var(--cyan-glow),0 0 80px rgba(0,255,204,0.15);
+  margin-bottom:16px;
+  position:relative;
+}
+.hero-title::before,.hero-title::after {
+  content:attr(data-text);
+  position:absolute;top:0;left:0;width:100%;
+  font-family:'Orbitron',monospace;font-size:inherit;font-weight:900;letter-spacing:6px;
+}
+.hero-title::before{color:#ff0066;animation:glitch-b 5s 2s infinite;clip-path:polygon(0 15%,100% 15%,100% 35%,0 35%);}
+.hero-title::after{color:#00ccff;animation:glitch-a 5s 2s infinite;clip-path:polygon(0 65%,100% 65%,100% 80%,0 80%);}
+@keyframes glitch-b{0%,88%,100%{transform:translate(0);opacity:0;}89%{transform:translate(-4px);opacity:.8;}91%{transform:translate(4px);opacity:.5;}93%{transform:translate(0);opacity:0;}}
+@keyframes glitch-a{0%,86%,100%{transform:translate(0);opacity:0;}87%{transform:translate(3px);opacity:.7;}89%{transform:translate(-3px);opacity:.4;}91%{transform:translate(0);opacity:0;}}
+.hero-sub {
+  font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;
+  color:var(--text2);margin-bottom:12px;text-transform:uppercase;
+}
+/* CATEGORIES */
+.container {
+  position:relative;z-index:10;
+  max-width:1100px;margin:0 auto;padding:0 24px 80px;
+}
+.cat-section {margin-bottom:48px;}
+.cat-header {
+  display:flex;align-items:center;gap:14px;
+  margin-bottom:20px;padding-bottom:12px;
+  border-bottom:1px solid var(--border);
+}
+.cat-label {
+  font-family:'Share Tech Mono',monospace;font-size:11px;
+  letter-spacing:3px;color:var(--cyan);text-transform:uppercase;
+}
+.cat-line {flex:1;height:1px;background:linear-gradient(90deg,var(--border2),transparent);}
+.cat-count {
+  font-family:'Share Tech Mono',monospace;font-size:10px;
+  color:var(--text3);letter-spacing:2px;
+}
+/* TOOL CARDS GRID */
+.tools-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:16px;
+}
+.tool-card {
+  position:relative;
+  background:var(--bg2);
+  border:1px solid var(--border);
+  padding:24px;
+  cursor:pointer;
+  text-decoration:none;
+  display:block;
+  overflow:hidden;
+  transition:border-color .25s,transform .25s,box-shadow .25s;
+}
+.tool-card::before {
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+  opacity:0;transition:opacity .25s;
+}
+.tool-card:hover {
+  border-color:var(--border2);
+  transform:translateY(-2px);
+  box-shadow:0 8px 32px rgba(0,255,204,0.08);
+}
+.tool-card:hover::before{opacity:0.6;}
+/* Corner decorations */
+.tool-card .c{position:absolute;width:10px;height:10px;border-color:var(--text3);border-style:solid;}
+.tool-card .c.tl{top:6px;left:6px;border-width:1px 0 0 1px;}
+.tool-card .c.tr{top:6px;right:6px;border-width:1px 1px 0 0;}
+.tool-card .c.bl{bottom:6px;left:6px;border-width:0 0 1px 1px;}
+.tool-card .c.br{bottom:6px;right:6px;border-width:0 1px 1px 0;}
+.tool-icon {
+  width:40px;height:40px;
+  border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:16px;
+  color:var(--cyan);
+  background:var(--bg3);
+  transition:border-color .25s,box-shadow .25s;
+}
+.tool-card:hover .tool-icon {
+  border-color:var(--border2);
+  box-shadow:0 0 16px rgba(0,255,204,0.15);
+}
+.tool-icon svg{width:20px;height:20px;}
+.tool-name {
+  font-family:'Orbitron',monospace;font-size:12px;font-weight:700;
+  letter-spacing:3px;color:var(--cyan);margin-bottom:8px;
+  text-transform:uppercase;
+}
+.tool-job {
+  font-family:'Share Tech Mono',monospace;font-size:10px;
+  letter-spacing:2px;color:var(--text3);margin-bottom:10px;
+}
+.tool-desc {
+  font-size:14px;font-weight:400;color:var(--text2);
+  line-height:1.55;letter-spacing:0.3px;
+}
+.tool-arrow {
+  position:absolute;bottom:20px;right:20px;
+  font-family:'Share Tech Mono',monospace;font-size:11px;
+  color:var(--text3);letter-spacing:1px;
+  transition:color .2s,transform .2s;
+}
+.tool-card:hover .tool-arrow{color:var(--cyan);transform:translateX(4px);}
+/* Stat bar at bottom */
+.hub-stats {
+  position:relative;z-index:10;
+  display:flex;justify-content:center;gap:48px;
+  padding:32px 24px;
+  border-top:1px solid var(--border);
+  margin-top:40px;
+}
+.hub-stat-item{text-align:center;}
+.hub-stat-val {
+  font-family:'Orbitron',monospace;font-size:24px;font-weight:900;
+  color:var(--cyan);text-shadow:0 0 15px var(--cyan-glow);
+  display:block;
+}
+.hub-stat-label {
+  font-family:'Share Tech Mono',monospace;font-size:9px;
+  letter-spacing:2px;color:var(--text3);margin-top:4px;display:block;
+}
+
+.modal-overlay.active { display:flex !important; }
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+
+<nav>
+  <a href="hub.html" class="nav-logo">AI TOOLS</a>
+  <span class="nav-tag">// INTELLIGENCE NETWORK · HUB v1.0</span>
+  <div class="nav-status"><div class="nav-dot"></div>ALL SYSTEMS OPERATIONAL</div>
+  <div id="auth-bar" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+    <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text2);letter-spacing:2px;">[ CHECKING... ]</span>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag"><span class="nav-dot"></span>TOOLS NETWORK · NODE ACTIF</div>
+  <h1 class="hero-title" data-text="AI TOOLS HUB">AI TOOLS HUB</h1>
+  <p class="hero-sub">// 10 outils · API intégrée · Génération temps réel</p>
+</div>
+
+
+<div id="usage-bar" style="display:none;text-align:center;position:relative;z-index:10;padding:0 0 12px;">
+  <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text2);letter-spacing:2px;" id="usage-text"></div>
+  <div style="width:220px;height:3px;background:#0b1118;border-radius:2px;margin:6px auto 0;overflow:hidden;">
+    <div id="usage-fill" style="height:100%;background:#00ffcc;transition:width 0.5s ease;width:0%;"></div>
+  </div>
+</div>
+<div class="container">
+
+  <!-- TEXT TOOLS -->
+  <div class="cat-section">
+    <div class="cat-header">
+      <span class="cat-label">// 01 · TEXT TOOLS</span>
+      <div class="cat-line"></div>
+      <span class="cat-count">4 OUTILS</span>
+    </div>
+    <div class="tools-grid">
+
+      <a href="tool-text-transform.html" class="tool-card">
+        <div class="c tl"></div><div class="c tr"></div><div class="c bl"></div><div class="c br"></div>
+        <div class="tool-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg></div>
+        <div class="tool-name">TEXT TRANSFORM</div>
+        <div class="tool-job">// job: text_transform</div>
+        <div class="tool-desc">Reformuler, traduire, changer le ton, optimiser pour le SEO ou convertir en email professionnel.</div>
+        <span class="tool-arrow">→ OUVRIR</span>
+      </a>
+
+      <a href="tool-text-template.html" class="tool-card">
+        <div class="c tl"></div><div class="c tr"></div><div class="c bl"></div><div class="c br"></div>
+        <div class="tool-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
+        <div class="tool-name">CONTENT GEN</div>
+        <div class="tool-job">// job: text_generate_template</div>
+        <div class="tool-desc">Générer fiches produit, posts réseaux sociaux, articles SEO, emails et méta-descriptions.</div>
+        <span class="tool-arrow">→ OUVRIR</span>
+      </a>
+
+
+      <a href="tool-seo-gen.html" class="tool-card">
+        <div class="c tl"></div><div class="c tr"></div><div class="c bl"></div><div class="c br"></div>
+        <div class="tool-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div>
+        <div class="tool-name">SEO GENERATOR</div>
+        <div class="tool-job">// job: seo_content_generate</div>
+        <div class="tool-desc">Génère fiches produit, posts sociaux, articles SEO et emailings optimisés à partir d'une description ou URL.</div>
+        <span class="tool-arrow">→ OUVRIR</span>
+      </a>
+
+      <a href="tool-content-check.html" class="tool-card">
+        <div class="c tl"></div><div class="c tr"></div><div class="c bl"></div><div class="c br"></div>
+        <div class="tool-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg></div>
+        <div class="tool-name">CONTENT CHECK</div>
+        <div class="tool-job">// job: content_check</div>
+        <div class="tool-desc">Analyser la qualité d'un texte : score SEO, lisibilité, densité de mots-clés, suggestions.</div>
+        <span class="tool-arrow">→ OUVRIR</span>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- WEB TOOLS -->
+  <div class="cat-section">
+    <div class="cat-header">
+      <span class="cat-label">// 02 · WEB TOOLS</span>
+      <div class="cat-line"></div>
+      <span class="cat-count">3 OUTILS</span>
+    </div>
+    <div class="tools-grid">
+
+      <a href="tool-scrape.html" class="tool-card">
+        <div class="c tl"></div><div class="c tr"></div><div class="c bl"></div><div class="c br"></div>
+        <div class="tool-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg></div>
+        <div class="tool-name">WEB SCRAPER</div>
+        <div class="tool-job">// job: scrape_get</div>
+        <div class="tool-desc">Extraire le contenu d'une URL et le transformer : résumé, fiche produit, analyse concurrentielle.</div>
+        <span class="tool-arrow">→ OUVRIR</span>
+      </a>
+
+      <a href="tool-http-get.html" class="tool-card">
+        <div class="c tl"></div><div class="c tr"></div><div class="c bl"></div><div class="c br"></div>
+        <div class="tool-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
+        <div class="tool-name">HTTP REQUEST</div>
+        <div class="tool-job">// job: http_get</div>
+        <div class="tool-desc">Interroger une API externe ou récupérer des données JSON depuis n'importe quel endpoint HTTP.</div>
+        <span class="tool-arrow">→ OUVRIR</span>
+      </a>
+
+      <a href="tool-code-js.html" class="tool-card">
+        <div class="c tl"></div><div class="c tr"></div><div class="c bl"></div><div class="c br"></div>
+        <div class="tool-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg></div>
+        <div class="tool-name">JS RUNNER</div>
+        <div class="tool-job">// job: code_run_js</div>
+        <div class="tool-desc">Exécuter du JavaScript côté serveur : calculs TVA, slugs SEO, validation EAN, extraction données.</div>
+        <span class="tool-arrow">→ OUVRIR</span>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- DATA TOOLS -->
+  <div class="cat-section">
+    <div class="cat-header">
+      <span class="cat-label">// 03 · DATA TOOLS</span>
+      <div class="cat-line"></div>
+      <span class="cat-count">2 OUTILS</span>
+    </div>
+    <div class="tools-grid">
+
+      <a href="tool-csv-stats.html" class="tool-card">
+        <div class="c tl"></div><div class="c tr"></div><div class="c bl"></div><div class="c br"></div>
+        <div class="tool-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div>
+        <div class="tool-name">CSV STATS</div>
+        <div class="tool-job">// job: csv_stats</div>
+        <div class="tool-desc">Analyser un fichier CSV : statistiques descriptives, détection anomalies, tendances, export rapport.</div>
+        <span class="tool-arrow">→ OUVRIR</span>
+      </a>
+
+      <a href="tool-ocr-pdf.html" class="tool-card">
+        <div class="c tl"></div><div class="c tr"></div><div class="c bl"></div><div class="c br"></div>
+        <div class="tool-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg></div>
+        <div class="tool-name">OCR / PDF</div>
+        <div class="tool-job">// job: ocr_pdf</div>
+        <div class="tool-desc">Extraire le texte d'un PDF scanné ou d'une image, puis le reformater, résumer ou analyser.</div>
+        <span class="tool-arrow">→ OUVRIR</span>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- VISUAL TOOLS -->
+  <div class="cat-section">
+    <div class="cat-header">
+      <span class="cat-label">// 04 · VISUAL TOOLS</span>
+      <div class="cat-line"></div>
+      <span class="cat-count">2 OUTILS</span>
+    </div>
+    <div class="tools-grid">
+
+      <a href="tool-svg-gen.html" class="tool-card">
+        <div class="c tl"></div><div class="c tr"></div><div class="c bl"></div><div class="c br"></div>
+        <div class="tool-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
+        <div class="tool-name">SVG GENERATOR</div>
+        <div class="tool-job">// job: image_svg_generate</div>
+        <div class="tool-desc">Générer des icônes SVG, banners, logos ou infographies à partir d'une description texte.</div>
+        <span class="tool-arrow">→ OUVRIR</span>
+      </a>
+
+      <a href="tool-data-processing.html" class="tool-card">
+        <div class="c tl"></div><div class="c tr"></div><div class="c bl"></div><div class="c br"></div>
+        <div class="tool-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg></div>
+        <div class="tool-name">DATA PIPELINE</div>
+        <div class="tool-job">// job: data_processing</div>
+        <div class="tool-desc">Transformer, nettoyer et restructurer des données JSON, XML ou CSV via des pipelines automatisés.</div>
+        <span class="tool-arrow">→ OUVRIR</span>
+      </a>
+
+    </div>
+  </div>
+
+  <div class="hub-stats">
+    <div class="hub-stat-item"><span class="hub-stat-val">11</span><span class="hub-stat-label">OUTILS ACTIFS</span></div>
+    <div class="hub-stat-item"><span class="hub-stat-val">9</span><span class="hub-stat-label">JOBS API</span></div>
+    <div class="hub-stat-item"><span class="hub-stat-val">4</span><span class="hub-stat-label">CATÉGORIES</span></div>
+  </div>
+
+</div>
+
+<script>
+// ── Network Canvas Animation ──────────────────────────────────
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+resize();window.addEventListener('resize',resize);
+const nodes=[];const NUM=50;
+for(let i=0;i<NUM;i++){nodes.push({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,r:Math.random()*2+1,pulse:Math.random()*Math.PI*2,active:Math.random()>.6});}
+const packets=[];let lastPkt=0;
+function draw(ts){
+  canvas.width=canvas.offsetWidth;// keep size sync
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;n.pulse+=.04;if(n.x<0||n.x>canvas.width)n.vx*=-1;if(n.y<0||n.y>canvas.height)n.vy*=-1;});
+  for(let i=0;i<nodes.length;i++){for(let j=i+1;j<nodes.length;j++){const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<150){const a=(1-d/150)*.25;ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.strokeStyle=`rgba(0,255,204,${a})`;ctx.lineWidth=.5;ctx.stroke();}}}
+  if(ts-lastPkt>600){const i=Math.floor(Math.random()*nodes.length),j=Math.floor(Math.random()*nodes.length);if(i!==j)packets.push({from:i,to:j,t:0,speed:.012+Math.random()*.01});lastPkt=ts;}
+  for(let k=packets.length-1;k>=0;k--){const p=packets[k];p.t+=p.speed;if(p.t>=1){packets.splice(k,1);continue;}const px=nodes[p.from].x+(nodes[p.to].x-nodes[p.from].x)*p.t,py=nodes[p.from].y+(nodes[p.to].y-nodes[p.from].y)*p.t;ctx.beginPath();ctx.arc(px,py,2.5,0,Math.PI*2);ctx.fillStyle='rgba(0,255,204,0.9)';ctx.shadowBlur=8;ctx.shadowColor='#00ffcc';ctx.fill();ctx.shadowBlur=0;}
+  nodes.forEach(n=>{const pulse=.5+.5*Math.sin(n.pulse);ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fillStyle=n.active?`rgba(0,255,204,${.6+pulse*.4})`:`rgba(0,255,204,${.15+pulse*.1})`;if(n.active){ctx.shadowBlur=8;ctx.shadowColor='#00ffcc';}ctx.fill();ctx.shadowBlur=0;if(n.active&&pulse>.8){ctx.beginPath();ctx.arc(n.x,n.y,n.r*3*pulse,0,Math.PI*2);ctx.strokeStyle=`rgba(0,255,204,${(1-pulse)*.3})`;ctx.lineWidth=.5;ctx.stroke();}});
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+
+
+// ── Auth & Payment ──
+const BACKEND = 'https://aiseo-api.duckdns.org';
+let currentUser = null;
+
+async function checkAuth() {
+  const params = new URLSearchParams(window.location.search);
+  const authParam = params.get('auth');
+  if (authParam) {
+    try {
+      const user = JSON.parse(decodeURIComponent(authParam));
+      localStorage.setItem('aiseo_user', JSON.stringify(user));
+      currentUser = user;
+      history.replaceState({}, '', window.location.pathname);
+    } catch(e) {}
+  }
+  if (!currentUser) {
+    const stored = localStorage.getItem('aiseo_user');
+    if (stored) { try { currentUser = JSON.parse(stored); } catch(e) {} }
+  }
+  if (currentUser) {
+    try {
+      const r = await fetch(BACKEND + '/auth/me', { credentials: 'include' });
+      const d = await r.json();
+      if (d.authenticated) { currentUser = d.user; localStorage.setItem('aiseo_user', JSON.stringify(d.user)); }
+    } catch(e) {}
+  }
+  renderAuthBar();
+  if (currentUser) loadUsage();
+}
+
+function renderAuthBar() {
+  const bar = document.getElementById('auth-bar');
+  if (!bar) return;
+  if (!currentUser) {
+    bar.innerHTML = '<a href="'+BACKEND+'/auth/google" style="display:inline-flex;align-items:center;gap:8px;font-family:\'Share Tech Mono\',monospace;font-size:11px;letter-spacing:2px;color:var(--bg);background:var(--cyan);border:none;padding:8px 18px;cursor:pointer;text-decoration:none;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:opacity 0.2s;font-weight:700;" onmouseover="this.style.opacity=\'.8\'" onmouseout="this.style.opacity=\'1\'"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>CONNEXION GOOGLE</a>';
+  } else {
+    const isPro = currentUser.plan === 'pro' && currentUser.subscription_status === 'active';
+    bar.innerHTML = '<img src="'+currentUser.avatar+'" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--cyan);opacity:0.9;" onerror="this.style.display=\'none\'"/><span style="font-family:\'Share Tech Mono\',monospace;font-size:10px;color:var(--text2);letter-spacing:1px;">'+currentUser.name+'</span><span style="font-family:\'Share Tech Mono\',monospace;font-size:9px;letter-spacing:2px;padding:3px 8px;border:1px solid '+(isPro?'var(--cyan)':'var(--text3)')+';color:'+(isPro?'var(--cyan)':'var(--text2)')+';">'+(isPro?'★ PRO':'FREE')+'</span>'+(isPro?'<button onclick="openModal()" style="font-family:\'Share Tech Mono\',monospace;font-size:9px;letter-spacing:1px;background:none;border:1px solid var(--text3);color:var(--text2);padding:3px 10px;cursor:pointer;">ABONNEMENT</button>':'<button onclick="openModal()" style="font-family:\'Share Tech Mono\',monospace;font-size:9px;letter-spacing:2px;background:var(--cyan);color:var(--bg);border:none;padding:4px 12px;cursor:pointer;font-weight:700;">↑ PRO 2.25€/MOIS</button>')+'<a href="#" onclick="localStorage.removeItem(\'aiseo_user\');window.location.href=BACKEND+\'/auth/logout\'" style="font-family:\'Share Tech Mono\',monospace;font-size:9px;color:var(--text3);letter-spacing:1px;text-decoration:none;opacity:0.7;" onmouseover="this.style.opacity=\'1\'" onmouseout="this.style.opacity=\'.7\'">DÉCO</a>';
+  }
+}
+
+async function loadUsage() {
+  if (!currentUser) return;
+  try {
+    const r = await fetch(BACKEND + '/api/usage', { credentials: 'include', headers: { 'x-user-id': currentUser.id } });
+    const d = await r.json();
+    const usageBar = document.getElementById('usage-bar');
+    const usageText = document.getElementById('usage-text');
+    const usageFill = document.getElementById('usage-fill');
+    if (!usageBar) return;
+    usageBar.style.display = 'block';
+    if (d.plan === 'pro') {
+      usageText.textContent = '[ PRO · GÉNÉRATIONS ILLIMITÉES ]';
+      usageFill.style.width = '100%';
+      usageFill.style.background = 'var(--cyan)';
+    } else {
+      const pct = Math.min(100, (d.usage / d.limit) * 100);
+      usageText.textContent = '[ FREE · ' + d.usage + '/' + d.limit + ' GÉNÉRATIONS CETTE SEMAINE ]';
+      usageFill.style.width = pct + '%';
+      if (pct >= 80) usageFill.style.background = 'var(--red)';
+      else if (pct >= 50) usageFill.style.background = 'var(--amber)';
+    }
+  } catch(e) {}
+}
+
+async function upgradeToPro() {
+  const user = currentUser || JSON.parse(localStorage.getItem('aiseo_user') || 'null');
+  if (!user) { window.location.href = BACKEND + '/auth/google'; return; }
+  try {
+    const r = await fetch(BACKEND + '/stripe/create-checkout', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json', 'x-user-id': user.id } });
+    const d = await r.json();
+    if (d.url) window.location.href = d.url;
+    else alert('Erreur: ' + (d.error || 'réponse invalide'));
+  } catch(e) { alert('Erreur — réessaie dans quelques secondes.'); }
+}
+
+async function openPortal() {
+  const user = currentUser || JSON.parse(localStorage.getItem('aiseo_user') || 'null');
+  if (!user) return;
+  try {
+    const r = await fetch(BACKEND + '/stripe/portal', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json', 'x-user-id': user.id } });
+    const d = await r.json();
+    if (d.url) window.location.href = d.url;
+  } catch(e) { alert('Erreur portail.'); }
+}
+
+function openModal() {
+  const modal = document.getElementById('sub-modal');
+  if (!modal) return;
+  modal.classList.add('active');
+  const portalSection = document.getElementById('portal-section');
+  if (currentUser && currentUser.plan === 'pro' && currentUser.subscription_status === 'active') {
+    if (portalSection) portalSection.style.display = 'flex';
+    const proBtn = modal.querySelector('.pro-btn');
+    if (proBtn) { proBtn.textContent = '★ PLAN ACTUEL'; proBtn.onclick = null; proBtn.style.cursor = 'default'; }
+  }
+}
+
+function closeModal() {
+  const modal = document.getElementById('sub-modal');
+  if (modal) modal.classList.remove('active');
+}
+
+checkAuth();
+
+
+</script>
+<!-- SUBSCRIPTION MODAL -->
+<div class="modal-overlay" id="sub-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;align-items:center;justify-content:center;backdrop-filter:blur(4px);">
+  <div style="background:var(--bg2);border:1px solid rgba(0,255,204,0.22);max-width:480px;width:90%;position:relative;animation:slideIn .25s ease;">
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),#7c3aed,var(--cyan),transparent);"></div>
+    <div style="padding:24px 24px 16px;border-bottom:1px solid rgba(0,255,204,0.12);display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-family:'Orbitron',monospace;font-size:14px;letter-spacing:3px;color:var(--cyan);font-weight:700;">⚡ ABONNEMENT</div>
+      <button onclick="closeModal()" style="background:none;border:none;color:var(--text2);font-size:18px;cursor:pointer;padding:4px 8px;">✕</button>
+    </div>
+    <div style="padding:24px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
+        <div style="background:var(--bg3);border:1px solid rgba(0,255,204,0.12);padding:20px 16px;text-align:center;position:relative;">
+          <div style="font-family:'Orbitron',monospace;font-size:11px;letter-spacing:3px;color:var(--text2);margin-bottom:12px;margin-top:8px;">FREE</div>
+          <div style="font-family:'Orbitron',monospace;font-size:24px;font-weight:900;color:var(--text);line-height:1;">0€</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:1px;margin-bottom:14px;">pour toujours</div>
+          <ul style="list-style:none;text-align:left;margin-bottom:16px;">
+            <li style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text2);letter-spacing:1px;padding:4px 0;display:flex;align-items:center;gap:6px;"><span style="color:var(--cyan);font-size:12px;">›</span>20 générations/semaine</li>
+            <li style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text2);letter-spacing:1px;padding:4px 0;display:flex;align-items:center;gap:6px;"><span style="color:var(--cyan);font-size:12px;">›</span>10 outils IA</li>
+            <li style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text2);letter-spacing:1px;padding:4px 0;display:flex;align-items:center;gap:6px;"><span style="color:var(--cyan);font-size:12px;">›</span>8 langues</li>
+          </ul>
+          <button onclick="closeModal()" style="width:100%;padding:10px;font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;transition:all .2s;border:1px solid rgba(0,255,204,0.22);background:transparent;color:var(--text2);">PLAN ACTUEL</button>
+        </div>
+        <div style="background:rgba(0,255,204,0.04);border:1px solid rgba(0,255,204,0.4);padding:20px 16px;text-align:center;position:relative;">
+          <div style="position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:var(--cyan);color:var(--bg);font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;padding:3px 10px;font-weight:700;">RECOMMANDÉ</div>
+          <div style="font-family:'Orbitron',monospace;font-size:11px;letter-spacing:3px;color:var(--cyan);margin-bottom:12px;margin-top:8px;">PRO</div>
+          <div style="font-family:'Orbitron',monospace;font-size:24px;font-weight:900;color:var(--cyan);text-shadow:0 0 20px rgba(0,255,204,0.4);line-height:1;">2.25€</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:1px;margin-bottom:14px;">/mois · sans engagement</div>
+          <ul style="list-style:none;text-align:left;margin-bottom:16px;">
+            <li style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text2);letter-spacing:1px;padding:4px 0;display:flex;align-items:center;gap:6px;"><span style="color:var(--cyan);font-size:12px;">›</span>Générations illimitées</li>
+            <li style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text2);letter-spacing:1px;padding:4px 0;display:flex;align-items:center;gap:6px;"><span style="color:var(--cyan);font-size:12px;">›</span>10 outils IA</li>
+            <li style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text2);letter-spacing:1px;padding:4px 0;display:flex;align-items:center;gap:6px;"><span style="color:var(--cyan);font-size:12px;">›</span>14 langues</li>
+            <li style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text2);letter-spacing:1px;padding:4px 0;display:flex;align-items:center;gap:6px;"><span style="color:var(--cyan);font-size:12px;">›</span>Support prioritaire</li>
+          </ul>
+          <button class="pro-btn" onclick="upgradeToPro()" style="width:100%;padding:10px;font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;transition:all .2s;background:var(--cyan);color:var(--bg);border:1px solid var(--cyan);font-weight:700;">↑ PASSER AU PRO</button>
+        </div>
+      </div>
+    </div>
+    <div id="portal-section" style="display:none;border-top:1px solid rgba(0,255,204,0.12);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text2);letter-spacing:1px;">Gérer votre abonnement Pro</span>
+      <button onclick="openPortal()" style="background:none;border:1px solid rgba(0,255,204,0.12);color:var(--text2);font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px;padding:6px 14px;cursor:pointer;">PORTAIL STRIPE →</button>
+    </div>
+    <div style="padding:0 24px 20px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:1px;">🔒 Paiement sécurisé · Annulation à tout moment</div>
+  </div>
+</div>
+
+</body>
+</html>
