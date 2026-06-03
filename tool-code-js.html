@@ -73,16 +73,33 @@ footer{position:relative;z-index:10;text-align:center;padding:20px;font-family:'
 const LANGS = { fr:'fr', en:'en', es:'es', de:'de', it:'it' };
 let currentLang = localStorage.getItem('aiseo_lang') || 'fr';
 let originalTexts = new Map();
+let isTranslating = false;
+
+async function translateNode(node, targetLang) {
+  const text = (originalTexts.get(node) || node.textContent).trim();
+  if (!text || text.length < 2) return;
+  try {
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=fr|${targetLang}`;
+    const r = await fetch(url);
+    const d = await r.json();
+    if (d.responseStatus === 200 && d.responseData && d.responseData.translatedText) {
+      node.textContent = d.responseData.translatedText;
+    }
+  } catch(e) {}
+}
 
 async function translatePage(targetLang) {
+  if (isTranslating) return;
+  isTranslating = true;
+
   if (targetLang === 'fr') {
-    // Restaurer les textes originaux
     originalTexts.forEach((text, el) => { el.textContent = text; });
     localStorage.setItem('aiseo_lang', 'fr');
     updateFlags('fr');
+    isTranslating = false;
     return;
   }
-  // Collecter tous les noeuds texte à traduire
+
   const walker = document.createTreeWalker(
     document.body,
     NodeFilter.SHOW_TEXT,
@@ -92,40 +109,32 @@ async function translatePage(targetLang) {
         if (!p) return NodeFilter.FILTER_REJECT;
         const tag = p.tagName;
         if (['SCRIPT','STYLE','NOSCRIPT','OPTION'].includes(tag)) return NodeFilter.FILTER_REJECT;
-        if (p.closest('#google_translate_element_hidden')) return NodeFilter.FILTER_REJECT;
+        if (p.closest('[data-notranslate]')) return NodeFilter.FILTER_REJECT;
         if (n.textContent.trim().length < 2) return NodeFilter.FILTER_REJECT;
         return NodeFilter.FILTER_ACCEPT;
       }
     }
   );
+
   const nodes = [];
   while (walker.nextNode()) nodes.push(walker.currentNode);
 
-  // Sauvegarder les originaux (toujours depuis le FR)
+  // Save originals only once (from FR)
   nodes.forEach(n => {
     if (!originalTexts.has(n)) originalTexts.set(n, n.textContent);
   });
 
-  // Traduire par batch de 10 via MyMemory
-  const batches = [];
-  for (let i = 0; i < nodes.length; i += 10) batches.push(nodes.slice(i, i+10));
-
-  for (const batch of batches) {
-    const texts = batch.map(n => originalTexts.get(n) || n.textContent);
-    try {
-      const q = texts.map(t => encodeURIComponent(t)).join('|');
-      const r = await fetch(`https://api.mymemory.translated.net/get?q=${q}&langpair=fr|${targetLang}`);
-      const d = await r.json();
-      if (d.responseStatus === 200) {
-        const translated = d.responseData.translatedText.split('|');
-        batch.forEach((n, i) => {
-          if (translated[i]) n.textContent = translated[i];
-        });
-      }
-    } catch(e) {}
+  // Translate by batches of 5 with delay to avoid rate limit
+  const BATCH = 5;
+  for (let i = 0; i < nodes.length; i += BATCH) {
+    const batch = nodes.slice(i, i + BATCH);
+    await Promise.all(batch.map(n => translateNode(n, targetLang)));
+    if (i + BATCH < nodes.length) await new Promise(res => setTimeout(res, 120));
   }
+
   localStorage.setItem('aiseo_lang', targetLang);
   updateFlags(targetLang);
+  isTranslating = false;
 }
 
 function updateFlags(lang) {
@@ -138,6 +147,7 @@ function updateFlags(lang) {
 }
 
 function switchLang(lang) {
+  if (lang === currentLang) return;
   currentLang = lang;
   translatePage(lang);
 }
@@ -146,6 +156,7 @@ window.addEventListener('DOMContentLoaded', () => {
   updateFlags(currentLang);
   if (currentLang !== 'fr') translatePage(currentLang);
 });
+
 </script>
 <style>
 .lang-switcher, .lang-switcher-nav {
