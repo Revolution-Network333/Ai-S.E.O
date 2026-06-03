@@ -64,6 +64,55 @@ footer{position:relative;z-index:10;text-align:center;padding:20px;font-family:'
 
 .modal-overlay.active { display:flex !important; }
 </style>
+
+<!-- Google Translate -->
+<meta name="google-translate-customization" content="ai-seo-translate"></meta>
+<script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'fr',
+    includedLanguages: 'en,es,de,it,fr',
+    layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+    autoDisplay: false
+  }, 'google_translate_element');
+}
+</script>
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<style>
+/* Style du widget Google Translate dans la nav */
+#google_translate_element {
+  display: inline-flex;
+  align-items: center;
+}
+#google_translate_element .goog-te-gadget {
+  font-family: 'Share Tech Mono', monospace !important;
+  font-size: 0 !important;
+  color: transparent !important;
+}
+#google_translate_element .goog-te-gadget-simple {
+  background: transparent !important;
+  border: 1px solid var(--cyan, #00ffcc) !important;
+  padding: 3px 8px !important;
+  font-family: 'Share Tech Mono', monospace !important;
+  font-size: 10px !important;
+  color: var(--cyan, #00ffcc) !important;
+  cursor: pointer !important;
+  letter-spacing: 1px !important;
+}
+#google_translate_element .goog-te-gadget-simple span {
+  color: var(--cyan, #00ffcc) !important;
+  font-family: 'Share Tech Mono', monospace !important;
+  font-size: 10px !important;
+  letter-spacing: 1px !important;
+}
+#google_translate_element .goog-te-gadget-simple .goog-te-menu-value span {
+  color: var(--cyan, #00ffcc) !important;
+}
+#google_translate_element img { display: none !important; }
+.goog-te-banner-frame { display: none !important; }
+body { top: 0 !important; }
+</style>
+
 </head>
 <body>
 
@@ -94,6 +143,7 @@ requestAnimationFrame(draw);
   <a href="hub.html" class="nav-logo">AI TOOLS</a>
   <span class="nav-job">// csv_stats</span>
   <a href="hub.html" class="nav-back">← RETOUR HUB</a>
+  <div id="google_translate_element" style="margin-left:8px;"></div>
 </nav>
 
 <div class="sub-nav">
