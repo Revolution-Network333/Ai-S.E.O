@@ -958,7 +958,7 @@ async function checkAuth() {
       localStorage.setItem('aiseo_user', JSON.stringify(user));
       currentUser = user;
       // Nettoyer l'URL
-      history.replaceState({}, '', window.location.pathname);
+      history.replaceState({}, '', window.location.pathname); const rt=localStorage.getItem('aiseo_return_to'); if(rt && rt!==window.location.href){localStorage.removeItem('aiseo_return_to');window.location.href=rt;}
     } catch(e) {}
   }
 
@@ -990,7 +990,7 @@ function renderAuthBar() {
   const bar = document.getElementById('auth-bar');
   if (!currentUser) {
     bar.innerHTML = `
-      <a href="${BACKEND}/auth/google" style="
+      <a href="#" onclick="localStorage.setItem('aiseo_return_to',window.location.href);window.location.href=BACKEND+'/auth/google'" style="
         display:inline-flex;align-items:center;gap:8px;
         font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;
         color:var(--bg);background:var(--cyan);
@@ -1219,7 +1219,7 @@ async function generate() {
   // Vérifier si abonnement vient d'être souscrit
   const params = new URLSearchParams(window.location.search);
   if (params.get('subscribed') === '1') {
-    history.replaceState({}, '', window.location.pathname);
+    history.replaceState({}, '', window.location.pathname); const rt=localStorage.getItem('aiseo_return_to'); if(rt && rt!==window.location.href){localStorage.removeItem('aiseo_return_to');window.location.href=rt;}
     await checkAuth();
   }
 }
