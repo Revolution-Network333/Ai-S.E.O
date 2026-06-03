@@ -708,54 +708,80 @@ footer {
 .portal-btn:hover { border-color:var(--border2); color:var(--cyan); }
 </style>
 
-<!-- Google Translate -->
-<meta name="google-translate-customization" content="ai-seo-translate"></meta>
+
+
+<!-- Google Translate + Custom Flag Switcher -->
 <script type="text/javascript">
 function googleTranslateElementInit() {
   new google.translate.TranslateElement({
     pageLanguage: 'fr',
     includedLanguages: 'en,es,de,it,fr',
-    layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
     autoDisplay: false
-  }, 'google_translate_element');
+  }, 'google_translate_element_hidden');
 }
+function switchLang(lang) {
+  // Mémoriser la langue
+  localStorage.setItem('aiseo_lang', lang);
+  // Utiliser le cookie Google Translate
+  document.cookie = 'googtrans=/fr/' + lang + ';path=/;domain=.github.io';
+  document.cookie = 'googtrans=/fr/' + lang + ';path=/';
+  // Trouver le select de Google Translate et changer la valeur
+  const sel = document.querySelector('.goog-te-combo');
+  if (sel) {
+    sel.value = lang;
+    sel.dispatchEvent(new Event('change'));
+  } else {
+    // Si le widget n'est pas encore chargé, attendre
+    setTimeout(() => {
+      const s = document.querySelector('.goog-te-combo');
+      if (s) { s.value = lang; s.dispatchEvent(new Event('change')); }
+    }, 500);
+  }
+  // Mettre à jour l'affichage des drapeaux
+  document.querySelectorAll('.lang-flag').forEach(f => {
+    f.style.opacity = f.dataset.lang === lang ? '1' : '0.35';
+    f.style.transform = f.dataset.lang === lang ? 'scale(1.2)' : 'scale(1)';
+  });
+}
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('aiseo_lang') || 'fr';
+  if (saved !== 'fr') setTimeout(() => switchLang(saved), 1000);
+  document.querySelectorAll('.lang-flag').forEach(f => {
+    f.style.opacity = f.dataset.lang === saved ? '1' : '0.35';
+    f.style.transform = f.dataset.lang === saved ? 'scale(1.2)' : 'scale(1)';
+  });
+});
 </script>
 <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 <style>
-/* Style du widget Google Translate dans la nav */
-#google_translate_element {
-  display: inline-flex;
+.lang-switcher {
+  display: flex;
   align-items: center;
+  gap: 5px;
+  margin-left: 8px;
 }
-#google_translate_element .goog-te-gadget {
-  font-family: 'Share Tech Mono', monospace !important;
-  font-size: 0 !important;
-  color: transparent !important;
+.lang-flag {
+  font-size: 18px;
+  cursor: pointer;
+  opacity: 0.35;
+  transition: opacity 0.2s, transform 0.2s;
+  line-height: 1;
+  user-select: none;
 }
-#google_translate_element .goog-te-gadget-simple {
-  background: transparent !important;
-  border: 1px solid var(--cyan, #00ffcc) !important;
-  padding: 3px 8px !important;
-  font-family: 'Share Tech Mono', monospace !important;
-  font-size: 10px !important;
-  color: var(--cyan, #00ffcc) !important;
-  cursor: pointer !important;
-  letter-spacing: 1px !important;
-}
-#google_translate_element .goog-te-gadget-simple span {
-  color: var(--cyan, #00ffcc) !important;
-  font-family: 'Share Tech Mono', monospace !important;
-  font-size: 10px !important;
-  letter-spacing: 1px !important;
-}
-#google_translate_element .goog-te-gadget-simple .goog-te-menu-value span {
-  color: var(--cyan, #00ffcc) !important;
-}
-#google_translate_element img { display: none !important; }
+.lang-flag:hover { opacity: 0.8 !important; }
+#google_translate_element_hidden { display: none !important; }
 .goog-te-banner-frame { display: none !important; }
+.goog-te-menu-frame { margin-top: 0 !important; }
 body { top: 0 !important; }
+iframe.skiptranslate { display: none !important; }
 </style>
 
+
+<style>
+.lang-switcher-nav {
+  display: flex; align-items: center; gap: 5px; margin-left: 8px;
+}
+</style>
 </head>
 <body>
 
