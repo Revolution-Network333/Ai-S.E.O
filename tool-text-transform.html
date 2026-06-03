@@ -13,11 +13,12 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,204,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,204,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
 #bg-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:1;opacity:.45;pointer-events:none;}
 nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 36px;background:rgba(6,10,13,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
+.sub-nav{position:fixed;top:48px;left:0;right:0;z-index:99;background:rgba(6,10,13,0.88);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);padding:5px 20px;display:flex;flex-direction:column;align-items:center;gap:4px;}
 .nav-logo{font-family:'Orbitron',monospace;font-size:15px;font-weight:900;color:var(--cyan);letter-spacing:4px;text-shadow:0 0 15px var(--cyan-glow);text-decoration:none;}
 .nav-back{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--text2);text-decoration:none;transition:color .2s;}
 .nav-back:hover{color:var(--cyan);}
 .nav-job{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--text3);}
-.main{position:relative;z-index:10;max-width:860px;margin:0 auto;padding:100px 24px 80px;}
+.main{position:relative;z-index:10;max-width:860px;margin:0 auto;padding:140px 24px 80px;}
 .page-header{margin-bottom:32px;}
 .page-tag{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--text3);margin-bottom:8px;}
 .page-title{font-family:'Orbitron',monospace;font-size:clamp(22px,4vw,36px);font-weight:900;letter-spacing:4px;color:var(--cyan);text-shadow:0 0 20px var(--cyan-glow);margin-bottom:8px;}
@@ -95,17 +96,17 @@ requestAnimationFrame(draw);
   <a href="hub.html" class="nav-back">← RETOUR HUB</a>
 </nav>
 
-  <!-- Auth bar -->
-  <div id="auth-bar" style="display:flex;align-items:center;gap:12px;justify-content:center;flex-wrap:wrap;margin:12px 0 4px;">
+<div class="sub-nav">
+  <div id="auth-bar" style="display:flex;align-items:center;gap:12px;justify-content:center;flex-wrap:wrap;">
     <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text2);letter-spacing:2px;">[ CHECKING AUTH... ]</div>
   </div>
-  <!-- Usage bar -->
-  <div id="usage-bar" style="display:none;text-align:center;margin-bottom:6px;">
+  <div id="usage-bar" style="display:none;text-align:center;">
     <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text2);letter-spacing:2px;" id="usage-text"></div>
-    <div style="width:200px;height:3px;background:var(--bg3);border-radius:2px;margin:6px auto 0;overflow:hidden;">
+    <div style="width:220px;height:2px;background:var(--bg3);border-radius:2px;margin:4px auto 0;overflow:hidden;">
       <div id="usage-fill" style="height:100%;background:var(--cyan);transition:width 0.5s ease;width:0%;"></div>
     </div>
   </div>
+</div>
 
 <div class="main">
   <div class="page-header">
@@ -194,58 +195,15 @@ async function runTransform(){
   const rb=document.getElementById('result-box');
   const rc=document.getElementById('result-content');
   btn.disabled=true;st.style.display='flex';stxt.textContent='Envoi à l\'API...';rb.classList.remove('show');
-
-  // Prompts IA par action
-  const prompts={
-    'reformuler': `Reformule le texte suivant en conservant le sens, en améliorant la fluidité et le style. Réponds UNIQUEMENT avec le texte reformulé, sans introduction ni commentaire. Langue de sortie : ${lang}.
-
-Texte :
-${inp}`,
-    'traduire en anglais': `Traduis le texte suivant en anglais. Réponds UNIQUEMENT avec la traduction, sans introduction ni commentaire.
-
-Texte :
-${inp}`,
-    'traduire en français': `Traduis le texte suivant en français. Réponds UNIQUEMENT avec la traduction, sans introduction ni commentaire.
-
-Texte :
-${inp}`,
-    'traduire en espagnol': `Traduis le texte suivant en espagnol. Réponds UNIQUEMENT avec la traduction, sans introduction ni commentaire.
-
-Texte :
-${inp}`,
-    'optimiser pour SEO': `Optimise le texte suivant pour le référencement SEO : améliore la densité des mots-clés, ajoute des synonymes pertinents, structure mieux les phrases. Réponds UNIQUEMENT avec le texte optimisé. Langue : ${lang}.
-
-Texte :
-${inp}`,
-    'convertir en email professionnel': `Convertis le texte suivant en un email professionnel clair et efficace avec : objet, corps structuré, formule de politesse. Réponds UNIQUEMENT avec l\'email. Langue : ${lang}.
-
-Texte :
-${inp}`,
-    'simplifier le langage': `Simplifie le texte suivant pour le rendre accessible à tous, avec des phrases courtes et un vocabulaire simple. Réponds UNIQUEMENT avec le texte simplifié. Langue : ${lang}.
-
-Texte :
-${inp}`,
-    'rendre plus formel': `Réécris le texte suivant dans un registre formel et professionnel. Réponds UNIQUEMENT avec le texte réécrit. Langue : ${lang}.
-
-Texte :
-${inp}`,
-    'rendre plus percutant': `Réécris le texte suivant pour le rendre plus percutant, dynamique et convaincant. Réponds UNIQUEMENT avec le texte réécrit. Langue : ${lang}.
-
-Texte :
-${inp}`,
-  };
-
-  const template = prompts[action] || prompts['reformuler'];
-
   try{
     stxt.textContent='Envoi du job...';
-    const res=await fetch(BACKEND+'/api/job',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'text_generate_template',params:{template,variables:{}}})});
+    const res=await fetch(BACKEND+'/api/job',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'text_transform',params:{text:inp,action,language:lang}})});
     const {id}=await res.json();
     if(!id) throw new Error('Job non créé');
     let result=null;
     for(let i=0;i<30;i++){
       await new Promise(r=>setTimeout(r,1500));
-      stxt.textContent='Génération IA... ('+(i+1)+')';
+      stxt.textContent='Traitement... ('+(i+1)+')';
       const pr=await fetch(BACKEND+'/api/job/'+id+'/result',{});
       const pd=await pr.json();
       if(pd.status==='completed'){result=pd.result?.result??pd.result;break;}
