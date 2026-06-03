@@ -289,53 +289,86 @@ function doCopy(txt,btn){
 
 
 function setEP(v){document.getElementById('endpoint').value=v;}
-async function safeJson(res) {
-  const ct = res.headers.get('content-type') || '';
-  if (!ct.includes('application/json')) {
+// Essaie un fetch direct, puis via proxy CORS si ça échoue (CORS bloqué)
+async function fetchDirect(url, options) {
+  try {
+    const res = await fetch(url, { ...options, signal: AbortSignal.timeout(10000) });
+    const ct = res.headers.get('content-type') || '';
     const text = await res.text();
-    throw new Error('Réponse non-JSON (HTTP ' + res.status + ') — le serveur est peut-être hors ligne ou une erreur réseau s\'est produite.');
+    let parsed = null;
+    try { parsed = JSON.parse(text); } catch(e) {}
+    return {
+      status: res.status,
+      statusText: res.statusText,
+      contentType: ct,
+      body: parsed !== null ? parsed : text,
+      source: 'direct'
+    };
+  } catch(e) {
+    if (e.name === 'AbortError') throw new Error('Timeout — l\'URL ne répond pas après 10s.');
+    // Probablement un blocage CORS → fallback proxy
+    return null;
   }
-  return res.json();
+}
+
+async function fetchViaProxy(url) {
+  // allorigins.win : proxy CORS public, fonctionne pour GET
+  const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
+  const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(15000) });
+  if (!res.ok) throw new Error('Proxy CORS inaccessible (HTTP ' + res.status + ')');
+  const d = await res.json();
+  const text = d.contents || '';
+  let parsed = null;
+  try { parsed = JSON.parse(text); } catch(e) {}
+  return {
+    status: d.status?.http_code || 200,
+    statusText: 'via proxy',
+    contentType: d.status?.content_type || '',
+    body: parsed !== null ? parsed : text,
+    source: 'proxy'
+  };
+}
+
+function formatResult(r) {
+  const header = `// HTTP ${r.status} ${r.statusText}  [${r.source === 'proxy' ? 'via proxy CORS' : 'direct'}]\n// Content-Type: ${r.contentType || 'unknown'}\n\n`;
+  const body = typeof r.body === 'string' ? r.body : JSON.stringify(r.body, null, 2);
+  return header + body;
 }
 
 async function runHttp(){
   const ep=document.getElementById('endpoint').value.trim();
   if(!ep){alert('Entrez un endpoint.');return;}
+  if(!/^https?:\/\/.+/.test(ep)){alert('URL invalide — doit commencer par http:// ou https://');return;}
   const method=document.getElementById('method').value;
-  let headers={};
-  try{const h=document.getElementById('headers-inp').value.trim();if(h)headers=JSON.parse(h);}catch(e){alert('Headers JSON invalide.');return;}
-  let body=null;
+  let customHeaders={};
+  try{const h=document.getElementById('headers-inp').value.trim();if(h)customHeaders=JSON.parse(h);}catch(e){alert('Headers JSON invalide.');return;}
+  let bodyPayload=undefined;
   const bRaw=document.getElementById('body-inp').value.trim();
-  if(bRaw)try{body=JSON.parse(bRaw);}catch(e){body=bRaw;}
+  if(bRaw && method==='POST'){
+    try{bodyPayload=bRaw;}catch(e){bodyPayload=bRaw;}
+  }
   const btn=document.getElementById('run-btn'),st=document.getElementById('status'),stxt=document.getElementById('stxt');
   const rb=document.getElementById('result-box'),rc=document.getElementById('result-content');
   btn.disabled=true;st.style.display='flex';stxt.textContent='Requête en cours...';rb.classList.remove('show');
   try{
-    if(!currentUser) throw new Error('Connectez-vous pour utiliser cet outil.');
-    let res;
-    try {
-      res = await fetch(BACKEND+'/api/generate', {
-        method:'POST',
-        credentials:'include',
-        headers:{'Content-Type':'application/json','x-user-id':currentUser.id},
-        body:JSON.stringify({input:ep, types:['http_get'], language:'fr', params:{method,headers,body}})
-      });
-    } catch(netErr) {
-      throw new Error('Impossible de joindre le serveur — vérifiez votre connexion ou réessayez dans quelques secondes.');
+    const fetchOptions = {
+      method,
+      headers: { 'Accept': 'application/json, text/plain, */*', ...customHeaders },
+      ...(bodyPayload ? {body: bodyPayload} : {})
+    };
+
+    stxt.textContent='Connexion directe...';
+    let result = await fetchDirect(ep, fetchOptions);
+
+    if (result === null) {
+      // CORS bloqué — fallback proxy (GET seulement)
+      if (method !== 'GET') throw new Error('CORS bloqué et le proxy ne supporte que GET. Ajoutez les headers CORS côté serveur.');
+      stxt.textContent='CORS bloqué — tentative via proxy...';
+      result = await fetchViaProxy(ep);
     }
-    if(res.status===401){window.location.href=BACKEND+'/auth/google';return;}
-    if(res.status===429){
-      const d=await res.json().catch(()=>({}));
-      throw new Error('Limite atteinte — '+((d.remaining===0)?'repassez dans '+(d.resetIn||'quelques instants'):'quota épuisé'));
-    }
-    if(!res.ok){
-      const errText=await res.text().catch(()=>'');
-      throw new Error('Erreur serveur HTTP '+res.status+(errText?' : '+errText.substring(0,200):''));
-    }
-    const d = await safeJson(res);
-    const result = d.result ?? d.http_get ?? d.output ?? d.content ?? d.data ?? d;
+
     stxt.textContent='Terminé !';
-    rc.textContent = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
+    rc.textContent = formatResult(result);
     rb.classList.add('show');
   }catch(e){
     stxt.textContent='Erreur';
