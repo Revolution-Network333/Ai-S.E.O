@@ -194,15 +194,58 @@ async function runTransform(){
   const rb=document.getElementById('result-box');
   const rc=document.getElementById('result-content');
   btn.disabled=true;st.style.display='flex';stxt.textContent='Envoi à l\'API...';rb.classList.remove('show');
+
+  // Prompts IA par action
+  const prompts={
+    'reformuler': `Reformule le texte suivant en conservant le sens, en améliorant la fluidité et le style. Réponds UNIQUEMENT avec le texte reformulé, sans introduction ni commentaire. Langue de sortie : ${lang}.
+
+Texte :
+${inp}`,
+    'traduire en anglais': `Traduis le texte suivant en anglais. Réponds UNIQUEMENT avec la traduction, sans introduction ni commentaire.
+
+Texte :
+${inp}`,
+    'traduire en français': `Traduis le texte suivant en français. Réponds UNIQUEMENT avec la traduction, sans introduction ni commentaire.
+
+Texte :
+${inp}`,
+    'traduire en espagnol': `Traduis le texte suivant en espagnol. Réponds UNIQUEMENT avec la traduction, sans introduction ni commentaire.
+
+Texte :
+${inp}`,
+    'optimiser pour SEO': `Optimise le texte suivant pour le référencement SEO : améliore la densité des mots-clés, ajoute des synonymes pertinents, structure mieux les phrases. Réponds UNIQUEMENT avec le texte optimisé. Langue : ${lang}.
+
+Texte :
+${inp}`,
+    'convertir en email professionnel': `Convertis le texte suivant en un email professionnel clair et efficace avec : objet, corps structuré, formule de politesse. Réponds UNIQUEMENT avec l\'email. Langue : ${lang}.
+
+Texte :
+${inp}`,
+    'simplifier le langage': `Simplifie le texte suivant pour le rendre accessible à tous, avec des phrases courtes et un vocabulaire simple. Réponds UNIQUEMENT avec le texte simplifié. Langue : ${lang}.
+
+Texte :
+${inp}`,
+    'rendre plus formel': `Réécris le texte suivant dans un registre formel et professionnel. Réponds UNIQUEMENT avec le texte réécrit. Langue : ${lang}.
+
+Texte :
+${inp}`,
+    'rendre plus percutant': `Réécris le texte suivant pour le rendre plus percutant, dynamique et convaincant. Réponds UNIQUEMENT avec le texte réécrit. Langue : ${lang}.
+
+Texte :
+${inp}`,
+  };
+
+  const template = prompts[action] || prompts['reformuler'];
+
   try{
     stxt.textContent='Envoi du job...';
-    const res=await fetch(BACKEND+'/api/job',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'text_transform',params:{text:inp,action,language:lang}})});
+    const res=await fetch(BACKEND+'/api/job',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'text_generate_template',params:{template,variables:{}}})});
     const {id}=await res.json();
     if(!id) throw new Error('Job non créé');
     let result=null;
     for(let i=0;i<30;i++){
       await new Promise(r=>setTimeout(r,1500));
-      stxt.textContent='Traitement... ('+(i+1)+')';
+      stxt.textContent='Génération IA... ('+(i+1)+')';
       const pr=await fetch(BACKEND+'/api/job/'+id+'/result',{});
       const pd=await pr.json();
       if(pd.status==='completed'){result=pd.result?.result??pd.result;break;}
